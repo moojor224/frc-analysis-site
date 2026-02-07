@@ -123,7 +123,6 @@ function Home() {
                         <Sidebar {...{ setActiveTab }} />
                         <Divider />
                         <Box flexGrow={1} />
-                        <PWA />
                         <Stack alignItems="center">
                             <Typography variant="h6" component="div" display={"inline-flex"} alignItems={"center"}>
                                 Powered by:
@@ -150,6 +149,7 @@ function Home() {
                                     </Typography>
                                     {/* TODO: api key button? */}
                                     {/* <Button color="inherit">API Key</Button> */}
+                                    <PWA />
                                 </Toolbar>
                             </AppBar>
                         </Box>
