@@ -1,0 +1,9 @@
+- [x] createAnalyticsPage&lt;DataTypes>(PickerComponent, BodyComponent)
+- [x] tabbed view for each analytics page, managed by createAnalyticsPage
+- [x] tab selector mobile: < # >
+  - [x] alternate idea acquired: scrolling tabs
+- [ ] reorganize folder structure to match page layout
+- [ ] make app installable as PWA
+  - [ ] host on github pages
+  - [ ] make this its own repo
+- [ ] 

@@ -1,0 +1,44 @@
+{
+    "name": "event-analysis",
+    "author": {
+        "name": "moojor224"
+    },
+    "type": "module",
+    "dependencies": {
+        "@base-ui/react": "^1.1.0",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@moojor224/persistent-value": "^0.1.1",
+        "@mui/icons-material": "^7.3.7",
+        "@mui/material": "^7.3.7",
+        "@mui/x-license": "^8.26.0",
+        "copy": "^0.3.2",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "react-error-boundary": "^6.1.0",
+        "react-tabs": "^6.1.0",
+        "zod": "^4.3.6"
+    },
+    "scripts": {
+        "pack": "webpack && node ./build.js",
+        "build": "tsup && pnpm run pack",
+        "watch": "tsup --watch --onSuccess \"pnpm run pack\""
+    },
+    "devDependencies": {
+        "@types/node": "^25.0.9",
+        "@types/react": "^19.2.10",
+        "@types/react-dom": "^19.2.3",
+        "css-loader": "^7.1.3",
+        "inline-source": "^8.0.3",
+        "svg-inline-loader": "^0.8.2",
+        "tsup": "^8.3.6",
+        "typescript": "^5.7.3",
+        "webpack": "^5.104.1",
+        "webpack-cli": "^6.0.1"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "tba_api_lib"
+        ]
+    }
+}
