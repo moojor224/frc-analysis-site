@@ -23,6 +23,7 @@
   - [ ] convert team input to autocomplete
     - maybe make dedicated team input
 - [ ] add default value for pipeline input and optional/required indicator
+- [ ] add message to api pipeline step for loading bar
 
 ## Event analysis
 
