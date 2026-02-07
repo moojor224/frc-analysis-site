@@ -5,4 +5,4 @@ node_modules
 dist/
 tsup-out/
 webpack-out/
-out/
+frc-analysis-site/

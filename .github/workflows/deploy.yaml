@@ -40,7 +40,7 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v4
         with:
-          path: out/
+          path: frc-analysis-site/
   deploy:
     environment:
       name: github-pages

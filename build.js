@@ -22,11 +22,11 @@ try {
         ]
     });
     try {
-        fs.rmSync(path.resolve("out"), { recursive: true });
+        fs.rmSync(path.resolve("frc-analysis-site"), { recursive: true });
     } catch {}
-    fs.mkdir(path.resolve("out"), () => {
-        fs.writeFileSync(path.resolve("out", "index.html"), html);
-        copy("public/**/*", "out", function (err, files) {
+    fs.mkdir(path.resolve("frc-analysis-site"), () => {
+        fs.writeFileSync(path.resolve("frc-analysis-site", "index.html"), html);
+        copy("public/**/*", "frc-analysis-site", function (err, files) {
             if (err) throw err;
         });
     });
