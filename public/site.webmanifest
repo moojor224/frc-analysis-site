@@ -8,5 +8,5 @@
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
     "display": "standalone",
-    "start_url": "https://moojor224.github.io/frc-analysis-site/"
+    "start_url": "/frc-analysis-site/"
 }
