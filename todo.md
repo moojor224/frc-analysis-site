@@ -1,3 +1,5 @@
+# TODO
+
 ## General
 
 - [x] createAnalyticsPage&lt;DataTypes>(PickerComponent, BodyComponent)
@@ -9,6 +11,18 @@
   - [x] host on github pages
   - [x] make this its own repo
 - [ ] Add comsume/produce docs for pipeline steps and their overloads
+- [ ] input pipeline step: don't show ui if all steps are raw
+- [ ] usePersistentState hook that wraps useState and persistValue
+  - [ ] cache PipelineRenderer's:
+    - values
+    - activeStep
+    - lastRunStep
+    - apiError
+- [ ] useContext to get tab number for generating persistent value keys
+- [ ] add autocomplete input for pipeline input step
+  - [ ] convert team input to autocomplete
+    - maybe make dedicated team input
+- [ ] add default value for pipeline input and optional/required indicator
 
 ## Event analysis
 
@@ -23,3 +37,8 @@
     - y: penalty points diff
       - calculated from net PP gained for/against team
     - table ranked high->low differential
+
+## More analytics
+
+- [ ] year, team?, district? > event > match > match breakdown like on FIRST website
+  - [ ] per-year custom diagram and/or generic match breakdown
