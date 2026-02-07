@@ -1,3 +1,5 @@
+import MuiXLicense from "@/components/MuiXLicense.js";
+import PWA from "@/components/PWA.js";
 import { persistValue } from "@moojor224/persistent-value";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -20,11 +22,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import React, { useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "react-tabs/style/react-tabs.css";
-import { ApiContext, TBAAPI } from "../lib/tba_api/index.js";
 import { TBALogo } from "../components/tba_lamp.js";
+import { ApiContext, TBAAPI } from "../lib/tba_api/index.js";
 import { analytics } from "./analytics-tabs/index.js";
 import "./styles.css";
-import PWA from "@/components/PWA.js";
 
 const darkTheme = createTheme({
     palette: {
@@ -116,6 +117,7 @@ function Home() {
     return (
         <>
             <ThemeProvider theme={darkTheme}>
+                <MuiXLicense />
                 {/* provide api to all children */}
                 <ApiContext value={api}>
                     <CssBaseline />

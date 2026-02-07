@@ -4,6 +4,7 @@ import EventDetails from "@/components/EventDetails.js";
 import { Event, Match } from "@/lib/tba_api/types.js";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box } from "@mui/material";
+import { LineChart, LineChartPro, LineSeries } from "@mui/x-charts-premium";
 import { Tabs } from "../page.js";
 
 function getTeamRP(teamKey: string, match: Match, year: number) {
@@ -82,35 +83,72 @@ export default createAnalyticsPagePipeline(
             return [data, matches!, oopsAllTeams];
         })
         .messageIfNone("No matches found for selected event", "info")
-        .then(([data, matches, oopsAllTeams]) => {
-            if (oopsAllTeams === null || oopsAllTeams.length === 0) return null;
+        .then(([data, matches, teams]) => {
+            if (teams === null || teams.length === 0) return null;
             return [
                 data,
                 matches.sort((a, b) => a.match_number - b.match_number),
-                oopsAllTeams!.sort((a, b) => a.team_number - b.team_number)
+                teams!.sort((a, b) => a.team_number - b.team_number)
             ];
         })
         .messageIfNone("No teams found for selected event. (How???). The api might have just gone down", "error")
         .then(([data, matches, teams]) => {
+            const matchNumbers = new Set<number>();
             const qm = matches.filter((e) => e.comp_level === "qm");
+            const roll: Record<string, number> = {};
             const teamRPs = teams.map((t) => {
-                const rps = qm.map((m) => ({
-                    match_number: m.match_number,
-                    rp: getTeamRP(t.key, m, data.data.year)
-                }));
+                const rps = qm.map((m) => {
+                    matchNumbers.add(m.match_number);
+                    const rp = getTeamRP(t.key, m, data.data.year);
+                    const rol = (roll[t.team_number + ""] ?? 0) + rp;
+                    roll[t.team_number + ""] = rol;
+                    // if (t.team_number == 118) {
+                    //     console.log(rol);
+                    // }
+                    return {
+                        match_number: m.match_number,
+                        rp: rol
+                    };
+                });
                 return {
                     team: t.team_number,
                     rps,
                     totalRP: rps.reduce((a, b) => a + b.rp, 0)
                 };
             });
-            return [data, teamRPs] as const;
+            const matchRPs = qm.map((e, idx) => {
+                const entries = teamRPs.map((e) => [e.team + "", e.rps[idx].rp] as const);
+                entries.push(["match_number", e.match_number]);
+                return Object.fromEntries(entries);
+            });
+            // Array.from(matchNumbers).sort((a, b) => a - b)
+            return [data, teams, matchRPs] as const;
         }),
-    function ({ data: [{ event }, teamRPs] }) {
+    function ({
+        data: [
+            {
+                event,
+                data: { team: targetTeam }
+            },
+            teams,
+            matchRPs
+        ]
+    }) {
         return (
             <Box>
                 <EventDetails event={event} />
-                {JSON.stringify(teamRPs)}
+                {/* {JSON.stringify(teamRPs)} */}
+                <LineChartPro
+                    height={800}
+                    dataset={matchRPs}
+                    series={teams.map((e) => ({
+                        dataKey: e.team_number + "",
+                        label: e.team_number + "",
+                        showMark: e.team_number == targetTeam
+                    }))}
+                    xAxis={[{ dataKey: "match_number" }]}
+                    yAxis={[{ width: 50 }]}
+                />
             </Box>
         );
     }

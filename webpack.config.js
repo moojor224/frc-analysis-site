@@ -6,7 +6,8 @@ export default {
     entry: "./tsup-out/page.js",
     output: {
         filename: "index.js",
-        path: path.resolve("webpack-out")
+        path: path.resolve("webpack-out"),
+        publicPath: ""
     },
     module: {
         rules: [
