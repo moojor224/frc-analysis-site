@@ -133,8 +133,20 @@ export function createAnalyticsPage<T>(
                         <B ico={<CloseIcon />} oc={() => closeTab()} />
                     </Box>
                 </Box>
-                <Box className="hide-scrollbar" sx={{ position: "sticky", overflowY: "auto" }}>
-                    {manager.instances.map((e, i) => (e ? <div hidden={i != selectedTab}>{e.element}</div> : null))}
+                <Box className="hide-scrollbar" sx={{ position: "relative", overflowY: "auto" }}>
+                    {manager.instances.map((e, i) =>
+                        e ? (
+                            <div
+                                style={{
+                                    transform: i != selectedTab ? "translateX(-200vw)" : "translateX(0)",
+                                    position: i != selectedTab ? "absolute" : "unset",
+                                    top: "0"
+                                }}
+                            >
+                                {e.element}
+                            </div>
+                        ) : null
+                    )}
                 </Box>
             </Stack>
         );
