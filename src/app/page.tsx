@@ -121,10 +121,15 @@ function Home() {
                 {/* provide api to all children */}
                 <ApiContext value={api}>
                     <CssBaseline />
-                    <Drawer open={loaded && showSidebar} onClose={() => setShowSidebar(false)}>
+                    <Drawer
+                        sx={{ zoom: "calc(1 / var(--zoom))" }}
+                        open={loaded && showSidebar}
+                        onClose={() => setShowSidebar(false)}
+                    >
                         <Sidebar {...{ setActiveTab }} />
                         <Divider />
                         <Box flexGrow={1} />
+                        <ZoomControls />
                         <Stack alignItems="center">
                             <Typography variant="h6" component="div" display={"inline-flex"} alignItems={"center"}>
                                 Powered by:
@@ -134,7 +139,7 @@ function Home() {
                     </Drawer>
                     <Stack sx={{ height: "100%" }}>
                         <Box>
-                            <AppBar position="static">
+                            <AppBar position="static" sx={{ zoom: "calc(1 / var(--zoom))" }}>
                                 <Toolbar>
                                     <IconButton
                                         size="large"

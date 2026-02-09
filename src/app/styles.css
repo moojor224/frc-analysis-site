@@ -7,8 +7,13 @@ div#root {
     padding: 0;
 }
 
+:root {
+    --zoom: 1;
+}
+
 body {
     background-color: rgb(18, 18, 18);
+    zoom: var(--zoom);
 }
 
 .hide-scrollbar {
