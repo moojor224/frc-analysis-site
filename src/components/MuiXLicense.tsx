@@ -1,6 +1,5 @@
 import { LicenseInfo } from "@mui/x-license";
 import { md5 } from "@mui/x-license/encoding";
-import {} from "@mui/x-license/utils";
 import { useEffect } from "react";
 
 const orderNumber = "0";
