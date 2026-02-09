@@ -1,6 +1,7 @@
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
 import ZoomControls from "@/components/ZoomControls.js";
+import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -97,9 +98,9 @@ function SidebarItem<T>({ text, icon, onClick }: { text: T; icon: React.ReactNod
 
 function Home() {
     const [loaded, setLoaded] = useState(false);
-    const [loadMessage, setLoadMessage] = useState("Loading...");
+    const [loadMessage, setLoadMessage] = useState("Waiting for TheBlueAlliance API");
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeTab, setActiveTab] = useState(Tabs.Event);
+    const [activeTab, setActiveTab] = useLSPersistentValue("activepage", Tabs.Event);
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);
@@ -111,7 +112,7 @@ function Home() {
             setLoaded(true);
         });
         api.on("loaderror", () => {
-            setLoadMessage("API Not accessible. Check internet connection");
+            setLoadMessage("TheBlueAlliance API Not accessible. Check internet connection");
         });
         return api;
     }, []);
@@ -130,7 +131,9 @@ function Home() {
                         <Sidebar {...{ setActiveTab }} />
                         <Divider />
                         <Box flexGrow={1} />
+                        <Divider sx={{ marginBottom: "5px" }} />
                         <ZoomControls />
+                        <Divider sx={{ marginTop: "10px" }} />
                         <Stack alignItems="center">
                             <Typography variant="h6" component="div" display={"inline-flex"} alignItems={"center"}>
                                 Powered by:
