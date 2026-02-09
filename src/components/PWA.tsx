@@ -8,7 +8,7 @@ export default function PWA() {
     useEffect(() => {
         // @ts-ignore
         window.onbeforeinstallprompt = function (e: any) {
-            console.debug("app is valid pwa");
+            // console.debug("app is valid pwa");
             if (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1") {
                 console;
                 setCanPWA(true);

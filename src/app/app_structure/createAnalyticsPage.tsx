@@ -1,3 +1,5 @@
+import { StoreContext } from "@/components/IndexedDB.js";
+import { usePersistentValue } from "@/lib/usePersistentValue.js";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
@@ -12,7 +14,7 @@ import type { TabScrollButtonProps } from "@mui/material/TabScrollButton";
 import MaterialTabs from "@mui/material/Tabs";
 import React, { useContext, useState } from "react";
 import { ApiContext, TBAAPI } from "../../lib/tba_api/index.js";
-import { Tabs } from "../page.js";
+import { PersistPrefixKeyContext, Tabs } from "../page.js";
 import { useInstanceManager } from "./analytics_page/useInstanceManager.js";
 
 type PickerComponent<T> = React.FunctionComponent<{
@@ -41,11 +43,12 @@ export function createAnalyticsPage<T>(
     BodyComponent: BodyComponent<T>
 ) {
     function Instance() {
+        const analyticsPagePrefix = useContext(PersistPrefixKeyContext);
         const api = useContext(ApiContext);
         const [data, setData] = useState<T | null>(null);
-        console.log({ data });
+        // console.log({ data });
         return (
-            <Container maxWidth="md" sx={{ padding: 3 }}>
+            <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
                     <Paper elevation={4} sx={{ padding: 3 }}>
                         <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
@@ -62,25 +65,51 @@ export function createAnalyticsPage<T>(
         );
     }
     function Component() {
-        const manager = useInstanceManager<{ title: string }>(Instance);
+        const store = useContext(StoreContext);
+        const analyticsPageId = useContext(PersistPrefixKeyContext);
+        const [tabNums, setTabNums] = usePersistentValue<(number | void)[]>(`${analyticsPageId}-tabnumsarr`, []);
+        const manager = useInstanceManager<{ title: string }>(
+            Instance,
+            (id) => ({
+                title: "Tab " + (id + 1)
+            }),
+            tabNums
+        );
         if (manager.instances.length < 1) {
-            manager.addInstance({ title: "Tab " + (manager.id + 1) });
+            addInstance();
         }
-        const [selectedTab, setSelectedTab] = useState(0);
+        const [activeTab, setActiveTab] = usePersistentValue<number>(`${analyticsPageId}-activetab`, 0);
         function closeTab() {
-            console.info("closing tab", selectedTab);
-            manager.removeInstance(selectedTab);
-            setSelectedTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+            // console.info("closing tab", activeTab);
+            manager.removeInstance(activeTab);
+            setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+            delete tabNums[activeTab];
+            setTabNums(Array.from(tabNums));
+            // TODO: clean out old keys
+            const prefix = analyticsPageId + "-" + activeTab;
+            // const keys = new Array(localStorage.length)
+            //     .fill(0)
+            //     .map((e, i) => localStorage.key(i))
+            //     .filter((e) => e !== null && e.startsWith(prefix)) as string[];
+            // console.log(keys);
+            store.clear(prefix);
         }
-        if (selectedTab === -1) {
-            setSelectedTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+        function addInstance() {
+            const id = manager.id;
+            manager.addInstance({ title: "Tab " + (id + 1) });
+            const newTabs = tabNums.concat(id);
+            // console.log("add instance", manager.instances, newTabs);
+            setTabNums(newTabs);
+        }
+        if (activeTab === -1) {
+            setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
         }
         return (
             <Stack sx={{ height: "100%" }}>
                 <Box sx={{ bgcolor: "background.paper" }}>
                     <MaterialTabs
-                        value={selectedTab}
-                        onChange={(_, newTab) => setSelectedTab(newTab)}
+                        value={activeTab}
+                        onChange={(_, newTab) => setActiveTab(newTab)}
                         variant="scrollable"
                         scrollButtons="auto"
                         allowScrollButtonsMobile={true}
@@ -118,7 +147,7 @@ export function createAnalyticsPage<T>(
                             e ? (
                                 <Tab
                                     onMouseDown={(evt) => {
-                                        if (evt.button === 0) setSelectedTab(i);
+                                        if (evt.button === 0) setActiveTab(i);
                                         if (evt.button === 1) closeTab();
                                     }}
                                     key={i}
@@ -129,22 +158,25 @@ export function createAnalyticsPage<T>(
                         )}
                     </MaterialTabs>
                     <Box display="flex" flexWrap="nowrap" overflow="auto" className="hide-scrollbar">
-                        <B ico={<AddIcon />} oc={() => manager.addInstance({ title: "Tab " + (manager.id + 1) })} />
+                        <B ico={<AddIcon />} oc={() => addInstance()} />
                         <B ico={<CloseIcon />} oc={() => closeTab()} />
                     </Box>
                 </Box>
                 <Box className="hide-scrollbar" sx={{ position: "relative", overflowY: "auto" }}>
                     {manager.instances.map((e, i) =>
                         e ? (
-                            <div
-                                style={{
-                                    transform: i != selectedTab ? "translateX(-200vw)" : "translateX(0)",
-                                    position: i != selectedTab ? "absolute" : "unset",
-                                    top: "0"
-                                }}
-                            >
-                                {e.element}
-                            </div>
+                            // pass tab num through context
+                            <PersistPrefixKeyContext value={analyticsPageId + "-" + i}>
+                                <div
+                                    style={{
+                                        transform: i != activeTab ? "translateX(-200vw)" : "translateX(0)",
+                                        position: i != activeTab ? "absolute" : "unset",
+                                        top: "0"
+                                    }}
+                                >
+                                    {e.element}
+                                </div>
+                            </PersistPrefixKeyContext>
                         ) : null
                     )}
                 </Box>

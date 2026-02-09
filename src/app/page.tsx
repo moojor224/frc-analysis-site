@@ -1,5 +1,8 @@
+import IndexedDBContext from "@/components/IndexedDB.js";
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
+import ZoomControls from "@/components/ZoomControls.js";
+import { usePersistentValue } from "@/lib/usePersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -19,7 +22,7 @@ import {
 } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import React, { useMemo, useState } from "react";
+import React, { createContext, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "react-tabs/style/react-tabs.css";
 import { TBALogo } from "../components/tba_lamp.js";
@@ -58,6 +61,9 @@ if (key.get() === "dev") {
 const API_KEY = key.get()!;
 
 export enum Tabs {
+    /** DON'T USE THIS ONE */
+    None = "None",
+    Home = "Home",
     Season = "Season Analysis",
     Event = "Event Analysis"
 }
@@ -65,8 +71,16 @@ export enum Tabs {
 function TabSelect({ tab }: { tab: Tabs }) {
     return (
         <>
+            <PersistPrefixKeyContext value={Tabs.Home}>
+                <div hidden={tab != Tabs.Home} style={{ height: "100%" }}>
+                    home page
+                </div>
+            </PersistPrefixKeyContext>
             {analytics.map((e, i) => (
-                <e.TabSelect key={i} tab={tab} />
+                // pass tab key context to tab body
+                <PersistPrefixKeyContext value={e.name}>
+                    <e.TabSelect key={i} tab={tab} />
+                </PersistPrefixKeyContext>
             ))}
         </>
     );
@@ -94,11 +108,13 @@ function SidebarItem<T>({ text, icon, onClick }: { text: T; icon: React.ReactNod
 }
 ("#1565c0"); // primary dark
 
+export const PersistPrefixKeyContext = createContext("");
+
 function Home() {
     const [loaded, setLoaded] = useState(false);
     const [loadMessage, setLoadMessage] = useState("Loading...");
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeTab, setActiveTab] = useState(Tabs.Event);
+    const [activeTab, setActiveTab] = usePersistentValue("homepage", Tabs.Home);
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);
@@ -160,18 +176,20 @@ function Home() {
                                 </Toolbar>
                             </AppBar>
                         </Box>
-                        {loaded ? (
-                            // don't render site until api has loaded
-                            <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
-                                <TabSelect tab={activeTab} />
-                            </Box>
-                        ) : (
-                            <Box>
-                                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                                    {loadMessage}
-                                </Typography>
-                            </Box>
-                        )}
+                        <IndexedDBContext>
+                            {loaded ? (
+                                // don't render site until api has loaded
+                                <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
+                                    <TabSelect tab={activeTab} />
+                                </Box>
+                            ) : (
+                                <Box>
+                                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                                        {loadMessage}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </IndexedDBContext>
                     </Stack>
                 </ApiContext>
             </ThemeProvider>

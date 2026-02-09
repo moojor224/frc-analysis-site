@@ -52,7 +52,7 @@ export default createAnalyticsPagePipeline(
         )
         .then(([data]) => {
             const events = data.events;
-            console.log(events);
+            // console.log(events);
             if (!events) return events;
             return events.length === 0 ? null : { events, data: data.data };
         })

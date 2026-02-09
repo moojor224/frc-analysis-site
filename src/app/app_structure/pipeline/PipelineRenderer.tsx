@@ -1,10 +1,12 @@
+import { PersistPrefixKeyContext } from "@/app/page.js";
 import { ApiContext } from "@/lib/tba_api/index.js";
-import { Alert, Box, CircularProgress, CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
+import { usePersistentValue } from "@/lib/usePersistentValue.js";
+import { Alert, Box, CircularProgress, CircularProgressProps, Grid, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { Pipeline } from "./index.js";
-import InputStepComponent from "./step-renderers/InputStep.js";
 import ApiError from "./step-renderers/ApiError.js";
+import InputStepComponent from "./step-renderers/InputStep.js";
 
 export type InputPipelineStep<T, U = never> = React.FunctionComponent<U & { setValue(value: T): void; name: string }>;
 
@@ -68,9 +70,10 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 }
 
 function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(value: any): void }) {
-    const [values, setValues] = useState<any[]>([]);
-    const [activeStep, setActiveStep] = useState(0);
-    const [lastRunStep, setLastRunStep] = useState(-1);
+    const analyticsPageTabPrefix = useContext(PersistPrefixKeyContext);
+    const [values, setValues] = usePersistentValue<any[]>(`${analyticsPageTabPrefix}-valuesarr`, []);
+    const [activeStep, setActiveStep] = usePersistentValue<number>(`${analyticsPageTabPrefix}-activestep`, 0);
+    const [lastRunStep, setLastRunStep] = usePersistentValue<number>(`${analyticsPageTabPrefix}-lastrunstep`, -1);
     const [apiError, setApiError] = useState<Error | null>(null);
     const api = useContext(ApiContext);
     const steps = pipeline.build();
@@ -79,7 +82,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
     useEffect(() => {
         if (activeStep >= steps.length) {
             // all steps processed
-            console.info("all steps processed. setting output");
+            // console.info("all steps processed. setting output");
             setOutput(values[values.length - 1]);
         }
     }, [activeStep, values]);
@@ -88,7 +91,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
             {steps
                 .map((step, index, arr) => {
                     if (index > activeStep) return null;
-                    console.debug("running step", index, activeStep, step);
+                    // console.debug("running step", index, activeStep, step);
 
                     function getLastData() {
                         if (index === 0) return undefined;
@@ -102,7 +105,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                     step={step}
                                     prevData={getLastData()}
                                     onSubmit={(value) => {
-                                        console.info("submitting values from input");
+                                        // console.info("submitting values from input");
                                         values[index] = value;
                                         setValues(Array.from(values));
                                         setActiveStep(index + 1);
@@ -164,7 +167,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                     });
                                 })
                                     .then((newData: any) => {
-                                        console.info("api call done");
+                                        // console.info("api call done");
                                         values[index] = newData;
                                         setValues(Array.from(values));
                                         setActiveStep(index + 1);
@@ -173,10 +176,10 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                     .catch((e) => {
                                         console.error("error in api call:", e);
                                         if (e instanceof Error) {
-                                            console.debug("seting raw error");
+                                            // console.debug("seting raw error");
                                             setApiError(e);
                                         } else {
-                                            console.debug("seting parsed error");
+                                            // console.debug("seting parsed error");
                                             setApiError(new Error(e));
                                         }
                                         // values[index - 1 < 0 ? 0 : index - 1] = null;
@@ -212,6 +215,13 @@ export function PipelineRenderer({ pipeline, setOutput }: { pipeline: Pipeline<a
     return (
         <ErrorBoundary
             FallbackComponent={function ({ error }) {
+                if (error instanceof Error) {
+                    return (
+                        <Alert severity="error">
+                            <pre>{error.stack}</pre>
+                        </Alert>
+                    );
+                }
                 return <div>error: {JSON.stringify(error)}</div>;
             }}
         >

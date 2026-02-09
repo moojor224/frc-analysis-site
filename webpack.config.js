@@ -1,8 +1,8 @@
 import path from "path";
 
 export default {
-    // mode: "development",
-    mode: "production",
+    mode: "development",
+    // mode: "production",
     entry: "./tsup-out/page.js",
     output: {
         filename: "index.js",
