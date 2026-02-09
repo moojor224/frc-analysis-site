@@ -15,8 +15,9 @@
         "@mui/x-data-grid-premium": "^8.27.0",
         "@mui/x-license": "^8.26.0",
         "copy": "^0.3.2",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4",
+        "preact": "^10.28.3",
+        "react": "npm:@preact/compat@^18.3.1",
+        "react-dom": "npm:@preact/compat@^18.3.1",
         "react-error-boundary": "^6.1.0",
         "react-tabs": "^6.1.0",
         "zod": "^4.3.6"
