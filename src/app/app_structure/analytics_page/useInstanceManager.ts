@@ -15,7 +15,7 @@ type InstanceManager<T> = {
 export function useInstanceManager<Props extends {}>(
     Component: React.FunctionComponent<Props & { id: number; manager: InstanceManager<Props> }>,
     defaultProps: (tabid: number) => Props,
-    startingTabs: (number | void)[] = []
+    startingTabs: number[] = []
 ) {
     const [, setInstances] = useState([] as typeof manager.instances);
     const manager: InstanceManager<Props> = useMemo(() => {
@@ -57,9 +57,6 @@ export function useInstanceManager<Props extends {}>(
                 const props = defaultProps(id);
                 // console.log("add instance with props: ", props);
                 manager.addInstance(props);
-            } else {
-                manager.instances.push(undefined);
-                manager.id++;
             }
         });
         return manager;

@@ -70,7 +70,7 @@ export function createAnalyticsPage<T>(
         const IDB = useContext(DBContext);
         const analyticsPageId = useContext(PersistPrefixKeyContext);
         const [activeTab, setActiveTab] = useLSPersistentValue(`${analyticsPageId}-activetab`, 0);
-        const [tabNums, setTabNums] = useLSPersistentValue<(number | void)[]>(`${analyticsPageId}-tabnumsarr`, []);
+        const [tabNums, setTabNums] = useLSPersistentValue<number[]>(`${analyticsPageId}-tabnumsarr`, []);
         const [tabNameMap, setTabNameMap] = useLSPersistentValue<Record<string | number, string>>(
             `${analyticsPageId}-tabnamemap`,
             {}
@@ -87,7 +87,7 @@ export function createAnalyticsPage<T>(
             manager.removeInstance(activeTab);
             setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
             delete tabNums[activeTab];
-            setTabNums(Array.from(tabNums));
+            setTabNums(Array.from(tabNums.filter((e) => typeof e == "number")));
             const prefix = analyticsPageId + "-" + activeTab;
             IDB.clear(prefix);
             localstorageAdapter.clear(prefix);
