@@ -81,6 +81,9 @@ export function createAnalyticsPage<T>(
         }
         function closeTab() {
             console.info("closing tab", activeTab);
+            const instance = manager.instances[activeTab]!;
+            delete tabNameMap[instance.id];
+            setTabNameMap({ ...tabNameMap });
             manager.removeInstance(activeTab);
             setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
             delete tabNums[activeTab];
