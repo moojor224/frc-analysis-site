@@ -1,5 +1,6 @@
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
+import ZoomControls from "@/components/ZoomControls.js";
 import { persistValue } from "@moojor224/persistent-value";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
