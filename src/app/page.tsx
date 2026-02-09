@@ -137,6 +137,10 @@ function Home() {
     }, []);
     return (
         <>
+            <div hidden style={{ display: "none" }}>
+                {/* forces the zoom to be set on page load */}
+                <ZoomControls />
+            </div>
             <ThemeProvider theme={darkTheme}>
                 <MuiXLicense />
                 {/* provide api to all children */}
