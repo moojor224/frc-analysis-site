@@ -1,5 +1,6 @@
+import { PersistPrefixKeyContext } from "@/app/page.js";
 import { Button, Divider, FormControl, FormHelperText, Grid } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import type { Input, Step } from "../index.js";
 import NumberPipelineStep from "./inputs/Number.js";
 import SelectPipelineStep from "./inputs/Select.js";
@@ -13,6 +14,7 @@ export default function InputStepComponent({
     onSubmit: (value: any) => void;
     prevData: any;
 }) {
+    const analyticsPageTabInputstepPrefix = useContext(PersistPrefixKeyContext);
     const inputs: Input[] = useMemo(() => {
         [];
         if (typeof step.inputs === "function") {
@@ -41,42 +43,51 @@ export default function InputStepComponent({
             {step.divider ? <Divider variant="fullWidth" /> : null}
             <br />
             <Grid container spacing={2} direction="row">
-                {inputs.map((input, index) => {
-                    switch (input.type) {
-                        case "number":
-                            return (
-                                <NumberPipelineStep
-                                    key={index}
-                                    name={input.name}
-                                    min={input.min}
-                                    max={input.max}
-                                    setValue={makeSetter(index)}
-                                />
-                            );
-                        case "select":
-                            return (
-                                <SelectPipelineStep input={input} key={index} name={input.name} setValue={makeSetter(index)} />
-                            );
-                        case "autocomplete": {
-                            return <div>autocomplete input not implemented yet</div>;
-                        }
-                        case "string": {
-                            return <div>string imput not implemented yet</div>;
-                        }
-                        case "raw": {
-                            return null; // raw inputs are hardcoded data
-                        }
-                        default:
-                            return null;
-                    }
-                })}
+                {inputs.map((input, index) => (
+                    <PersistPrefixKeyContext value={`${analyticsPageTabInputstepPrefix}-input${index}`}>
+                        {(() => {
+                            switch (input.type) {
+                                case "number":
+                                    return (
+                                        <NumberPipelineStep
+                                            key={index}
+                                            name={input.name}
+                                            min={input.min}
+                                            max={input.max}
+                                            setValue={makeSetter(index)}
+                                        />
+                                    );
+                                case "select":
+                                    return (
+                                        <SelectPipelineStep
+                                            input={input}
+                                            key={index}
+                                            name={input.name}
+                                            setValue={makeSetter(index)}
+                                        />
+                                    );
+                                case "autocomplete": {
+                                    return <div>autocomplete input not implemented yet</div>;
+                                }
+                                case "string": {
+                                    return <div>string imput not implemented yet</div>;
+                                }
+                                case "raw": {
+                                    return null; // raw inputs are hardcoded data
+                                }
+                                default:
+                                    return null;
+                            }
+                        })()}
+                    </PersistPrefixKeyContext>
+                ))}
                 <FormControl>
                     <Button
                         sx={{ textTransform: "none", height: "40px" }}
                         variant="outlined"
                         onClick={() => {
                             if (hasInputs) {
-                                console.debug("submitting", values);
+                                // console.debug("submitting", values);
                                 onSubmit(values);
                             } else {
                                 console.warn("not all data is selected");

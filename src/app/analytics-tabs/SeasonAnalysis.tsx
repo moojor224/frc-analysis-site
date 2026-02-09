@@ -1,12 +1,15 @@
 import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
-import { createPipeline, Input } from "@/app/app_structure/pipeline/index.js";
-import { Tabs } from "../page.js";
+import { createPipeline } from "@/app/app_structure/pipeline/index.js";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { Tabs } from "../page.js";
 
 export default createAnalyticsPagePipeline(
     Tabs.Season,
     <CalendarMonthIcon />,
-    createPipeline().then(() => []),
+    createPipeline()
+        .api((api) => [api.getStatus()] as const)
+        .then((e) => e[0])
+        .messageIfNone("Unable to reach TBA APi", "error"),
     // .getInputs(
     //     [
     //         {
@@ -25,6 +28,11 @@ export default createAnalyticsPagePipeline(
     // )
     // .then(([team, year]) => ({ team, year }))
     function Body({ api, data }) {
-        return <div>not implemented yet :(</div>;
+        return (
+            <div>
+                <div>not implemented yet :(</div>
+                <div>TBA status: {JSON.stringify(data)}</div>
+            </div>
+        );
     }
 );

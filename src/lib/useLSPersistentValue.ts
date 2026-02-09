@@ -23,7 +23,7 @@ export type PersistentValue<T> = {
     set(value: T): void;
 };
 
-const localstorageAdapter = {
+export const localstorageAdapter = {
     hasItem(key: string): boolean {
         const val = localStorage.getItem(key);
         const keyExists = val !== null;
@@ -49,22 +49,28 @@ const localstorageAdapter = {
             return null;
         }
     },
-    setItem(key: string, value): void {
+    setItem(key: string, value: any): void {
         localStorage.setItem(key, JSON.stringify(value));
+    },
+    clear(prefix: string) {
+        const keys = new Array(localStorage.length).fill(0).map((e, i) => localStorage.key(i)!);
+        keys.forEach((e) => {
+            if (e.startsWith(prefix)) {
+                localStorage.removeItem(e);
+            }
+        });
     }
-} satisfies StorageAdapter<any>;
+};
 
 function persistValue<T>(
     options: PersistOptions<T>,
     storageAdapter: StorageAdapter<T> = localstorageAdapter
 ): PersistentValue<T> {
-    const storageKey = "persist-" + options.key;
+    const storageKey = options.key;
     let opts: (typeof values)[string];
     if (values[options.key]) {
-        console.log("loading cached pval");
         opts = values[options.key]; // gets the already-created PVal
     } else {
-        console.log("creating new pval");
         // create a new PVal. this should only run once when the page loads
         opts = {
             ...options,

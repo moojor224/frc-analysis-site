@@ -1,6 +1,6 @@
+import { useInput } from "@/app/app_structure/analytics_page/useInput.js";
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
 import { useEffect } from "react";
-import { useInput } from "@/app/app_structure/analytics_page/useInput.js";
 import { InputPipelineStep } from "../../PipelineRenderer.js";
 import { SelectInput } from "../../index.js";
 
@@ -15,10 +15,13 @@ const SelectPipelineStep: InputPipelineStep<string, { input: SelectInput<any> }>
     const value = useInput<string>();
     useEffect(() => {
         if (value.has && !value.hasError) {
-            console.debug("setting select value", value.value);
+            // console.debug("setting select value", value.value);
             setValue(value.value!);
         }
     }, [value.value]);
+    if (!value.has) {
+        value.set(input.data[0]?.[input.key]);
+    }
     return (
         <FormControl error={value.hasError}>
             <InputLabel>{name}</InputLabel>

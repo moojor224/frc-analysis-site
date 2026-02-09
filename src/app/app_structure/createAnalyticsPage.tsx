@@ -1,5 +1,10 @@
+import { PersistPrefixKeyContext, Tabs } from "@/app/page.js";
+import { ApiContext, TBAAPI } from "@/lib/tba_api/index.js";
+import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { localstorageAdapter, useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
@@ -10,9 +15,7 @@ import Button from "@mui/material/Button";
 import Tab from "@mui/material/Tab";
 import type { TabScrollButtonProps } from "@mui/material/TabScrollButton";
 import MaterialTabs from "@mui/material/Tabs";
-import React, { useContext, useState } from "react";
-import { ApiContext, TBAAPI } from "../../lib/tba_api/index.js";
-import { Tabs } from "../page.js";
+import React, { useContext } from "react";
 import { useInstanceManager } from "./analytics_page/useInstanceManager.js";
 
 type PickerComponent<T> = React.FunctionComponent<{
@@ -26,6 +29,7 @@ type BodyComponent<T> = React.FunctionComponent<{
     data: T;
     tabId: string;
 }>;
+
 function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
     return (
         <Button onClick={oc} variant="outlined">
@@ -41,11 +45,12 @@ export function createAnalyticsPage<T>(
     BodyComponent: BodyComponent<T>
 ) {
     function Instance() {
+        const analyticsPagePrefix = useContext(PersistPrefixKeyContext);
         const api = useContext(ApiContext);
-        const [data, setData] = useState<T | null>(null);
-        console.log({ data });
+        const [data, setData] = useDBPersistentValue<T | null>(`${analyticsPagePrefix}-data`, null);
+        // console.log({ data });
         return (
-            <Container maxWidth="md" sx={{ padding: 3 }}>
+            <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
                     <Paper elevation={4} sx={{ padding: 3 }}>
                         <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
@@ -62,25 +67,43 @@ export function createAnalyticsPage<T>(
         );
     }
     function Component() {
-        const manager = useInstanceManager<{ title: string }>(Instance);
+        const IDB = useContext(DBContext);
+        const analyticsPageId = useContext(PersistPrefixKeyContext);
+        const [activeTab, setActiveTab] = useLSPersistentValue(`${analyticsPageId}-activetab`, 0);
+        const [tabNums, setTabNums] = useLSPersistentValue<(number | void)[]>(`${analyticsPageId}-tabnumsarr`, []);
+        const [tabNameMap, setTabNameMap] = useLSPersistentValue<Record<string | number, string>>(
+            `${analyticsPageId}-tabnamemap`,
+            {}
+        );
+        const manager = useInstanceManager<{}>(Instance, () => ({}), tabNums);
         if (manager.instances.length < 1) {
-            manager.addInstance({ title: "Tab " + (manager.id + 1) });
+            addInstance();
         }
-        const [selectedTab, setSelectedTab] = useState(0);
         function closeTab() {
-            console.info("closing tab", selectedTab);
-            manager.removeInstance(selectedTab);
-            setSelectedTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+            console.info("closing tab", activeTab);
+            manager.removeInstance(activeTab);
+            setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+            delete tabNums[activeTab];
+            setTabNums(Array.from(tabNums));
+            const prefix = analyticsPageId + "-" + activeTab;
+            IDB.clear(prefix);
+            localstorageAdapter.clear(prefix);
         }
-        if (selectedTab === -1) {
-            setSelectedTab(manager.instances.indexOf(manager.instances.find((e) => e)));
+        function addInstance() {
+            const id = manager.addInstance({}).id;
+            const newTabs = tabNums.concat(id);
+            // console.log("add instance", manager.instances, newTabs);
+            setTabNums(newTabs);
+        }
+        if (activeTab === -1) {
+            setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
         }
         return (
             <Stack sx={{ height: "100%" }}>
                 <Box sx={{ bgcolor: "background.paper" }}>
                     <MaterialTabs
-                        value={selectedTab}
-                        onChange={(_, newTab) => setSelectedTab(newTab)}
+                        value={activeTab}
+                        onChange={(_, newTab) => setActiveTab(newTab)}
                         variant="scrollable"
                         scrollButtons="auto"
                         allowScrollButtonsMobile={true}
@@ -118,33 +141,46 @@ export function createAnalyticsPage<T>(
                             e ? (
                                 <Tab
                                     onMouseDown={(evt) => {
-                                        if (evt.button === 0) setSelectedTab(i);
+                                        if (evt.button === 0) setActiveTab(i);
                                         if (evt.button === 1) closeTab();
                                     }}
                                     key={i}
                                     value={i}
-                                    label={e.element.props.title}
+                                    label={tabNameMap[e.element.props.id]?.trim() || `Tab ${e.element.props.id + 1}`}
                                 />
                             ) : null
                         )}
                     </MaterialTabs>
                     <Box display="flex" flexWrap="nowrap" overflow="auto" className="hide-scrollbar">
-                        <B ico={<AddIcon />} oc={() => manager.addInstance({ title: "Tab " + (manager.id + 1) })} />
+                        <B ico={<AddIcon />} oc={() => addInstance()} />
                         <B ico={<CloseIcon />} oc={() => closeTab()} />
+                        <B
+                            ico={<EditIcon />}
+                            oc={() => {
+                                const title = prompt("Change tab title");
+                                if (!title) {
+                                    return;
+                                }
+                                tabNameMap[manager.instances[activeTab]!.id] = title;
+                                setTabNameMap({ ...tabNameMap });
+                            }}
+                        />
                     </Box>
                 </Box>
                 <Box className="hide-scrollbar" sx={{ position: "relative", overflowY: "auto" }}>
                     {manager.instances.map((e, i) =>
                         e ? (
-                            <div
-                                style={{
-                                    transform: i != selectedTab ? "translateX(-200vw)" : "translateX(0)",
-                                    position: i != selectedTab ? "absolute" : "unset",
-                                    top: "0"
-                                }}
-                            >
-                                {e.element}
-                            </div>
+                            <PersistPrefixKeyContext key={i} value={analyticsPageId + "-" + i}>
+                                <div
+                                    style={{
+                                        transform: i != activeTab ? "translateX(-200vw)" : "translateX(0)",
+                                        position: i != activeTab ? "absolute" : "unset",
+                                        top: "0"
+                                    }}
+                                >
+                                    {e.element}
+                                </div>
+                            </PersistPrefixKeyContext>
                         ) : null
                     )}
                 </Box>

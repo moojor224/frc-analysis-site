@@ -1,10 +1,12 @@
+import { PersistPrefixKeyContext } from "@/app/page.js";
 import { ApiContext } from "@/lib/tba_api/index.js";
-import { Alert, Box, CircularProgress, CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { Alert, Box, CircularProgress, CircularProgressProps, Grid, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { Pipeline } from "./index.js";
-import InputStepComponent from "./step-renderers/InputStep.js";
 import ApiError from "./step-renderers/ApiError.js";
+import InputStepComponent from "./step-renderers/InputStep.js";
 
 export type InputPipelineStep<T, U = never> = React.FunctionComponent<U & { setValue(value: T): void; name: string }>;
 
@@ -68,9 +70,10 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 }
 
 function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(value: any): void }) {
-    const [values, setValues] = useState<any[]>([]);
-    const [activeStep, setActiveStep] = useState(0);
-    const [lastRunStep, setLastRunStep] = useState(-1);
+    const analyticsPageTabPrefix = useContext(PersistPrefixKeyContext);
+    const [values, setValues] = useDBPersistentValue<any[]>(`${analyticsPageTabPrefix}-valuesarr`, []);
+    const [activeStep, setActiveStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-activestep`, 0);
+    const [lastRunStep, setLastRunStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-lastrunstep`, -1);
     const [apiError, setApiError] = useState<Error | null>(null);
     const api = useContext(ApiContext);
     const steps = pipeline.build();
@@ -88,107 +91,117 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
             {steps
                 .map((step, index, arr) => {
                     if (index > activeStep) return null;
-                    console.debug("running step", index, activeStep, step);
 
-                    function getLastData() {
-                        if (index === 0) return undefined;
-                        return values[index - 1];
-                    }
-                    switch (step.kind) {
-                        case "inputs":
-                            return (
-                                <InputStepComponent
-                                    key={index}
-                                    step={step}
-                                    prevData={getLastData()}
-                                    onSubmit={(value) => {
-                                        console.info("submitting values from input");
-                                        values[index] = value;
-                                        setValues(Array.from(values));
-                                        setActiveStep(index + 1);
-                                        setLastRunStep(-1);
-                                    }}
-                                />
-                            );
-                        case "show":
-                            return (
-                                <div key={index}>
-                                    <step.render data={values[index - 1]} />
-                                </div>
-                            );
-                        case "messageIfNone": {
-                            const data = values[index - 1];
-                            if (data === null || data === undefined) {
-                                return (
-                                    <Alert key={index} severity={step.severity}>
-                                        {step.message}
-                                    </Alert>
-                                );
-                            }
-                            if (activeStep === index) {
-                                values[index] = data;
-                                setValues(Array.from(values));
-                                setActiveStep(index + 1);
-                            }
-                            return null;
-                        }
-                        case "transform": {
-                            if (activeStep === index) {
-                                const oldData = values[index - 1];
-                                const newData = step.run(oldData);
-                                values[index] = newData;
-                                setValues(Array.from(values));
-                                setActiveStep(index + 1);
-                            }
-                            return null;
-                        }
-                        case "api": {
-                            if (activeStep === index && index !== lastRunStep) {
-                                setLastRunStep(index);
-                                setApiError(null);
-                                const oldData = values[index - 1];
-                                const promises: Promise<any>[] = step.run(api, oldData);
-                                setProgress((p) => {
-                                    const next = Array.from(p);
-                                    next[activeStep] = { completed: 0, total: promises.length };
-                                    return next;
-                                });
-                                promiseAllWithProgress(promises, function callback({ completed }: { completed: number }) {
-                                    setProgress((p) => {
-                                        const next = Array.from(p);
-                                        next[activeStep] = {
-                                            completed,
-                                            total: promises.length
-                                        };
-                                        return next;
-                                    });
-                                })
-                                    .then((newData: any) => {
-                                        console.info("api call done");
-                                        values[index] = newData;
-                                        setValues(Array.from(values));
-                                        setActiveStep(index + 1);
-                                        setLastRunStep(-1);
-                                    })
-                                    .catch((e) => {
-                                        console.error("error in api call:", e);
-                                        if (e instanceof Error) {
-                                            console.debug("seting raw error");
-                                            setApiError(e);
-                                        } else {
-                                            console.debug("seting parsed error");
-                                            setApiError(new Error(e));
+                    return (
+                        <PersistPrefixKeyContext value={`${analyticsPageTabPrefix}-inputstep${index}`}>
+                            {(() => {
+                                console.debug("running step", index, activeStep, step);
+
+                                function getLastData() {
+                                    if (index === 0) return undefined;
+                                    return values[index - 1];
+                                }
+                                switch (step.kind) {
+                                    case "inputs":
+                                        return (
+                                            <InputStepComponent
+                                                key={index}
+                                                step={step}
+                                                prevData={getLastData()}
+                                                onSubmit={(value) => {
+                                                    console.debug("submitting values from input");
+                                                    values[index] = value;
+                                                    setValues(Array.from(values));
+                                                    setActiveStep(index + 1);
+                                                    setLastRunStep(-1);
+                                                }}
+                                            />
+                                        );
+                                    case "show":
+                                        return (
+                                            <div key={index}>
+                                                <step.render data={values[index - 1]} />
+                                            </div>
+                                        );
+                                    case "messageIfNone": {
+                                        const data = values[index - 1];
+                                        if (data === null || data === undefined) {
+                                            return (
+                                                <Alert key={index} severity={step.severity}>
+                                                    {step.message}
+                                                </Alert>
+                                            );
                                         }
-                                        // values[index - 1 < 0 ? 0 : index - 1] = null;
-                                        // setValues(Array.from(values));
-                                        setActiveStep(index - 1);
-                                    });
-                            }
-                            return null;
-                        }
-                        default:
-                            return null;
-                    }
+                                        if (activeStep === index) {
+                                            values[index] = data;
+                                            setValues(Array.from(values));
+                                            setActiveStep(index + 1);
+                                        }
+                                        return null;
+                                    }
+                                    case "transform": {
+                                        if (activeStep === index) {
+                                            const oldData = values[index - 1];
+                                            const newData = step.run(oldData);
+                                            values[index] = newData;
+                                            setValues(Array.from(values));
+                                            setActiveStep(index + 1);
+                                        }
+                                        return null;
+                                    }
+                                    case "api": {
+                                        if (activeStep === index && index !== lastRunStep) {
+                                            setLastRunStep(index);
+                                            setApiError(null);
+                                            const oldData = values[index - 1];
+                                            const promises: Promise<any>[] = step.run(api, oldData);
+                                            setProgress((p) => {
+                                                const next = Array.from(p);
+                                                next[activeStep] = { completed: 0, total: promises.length };
+                                                return next;
+                                            });
+                                            promiseAllWithProgress(
+                                                promises,
+                                                function callback({ completed }: { completed: number }) {
+                                                    setProgress((p) => {
+                                                        const next = Array.from(p);
+                                                        next[activeStep] = {
+                                                            completed,
+                                                            total: promises.length
+                                                        };
+                                                        return next;
+                                                    });
+                                                }
+                                            )
+                                                .then((newData: any) => {
+                                                    console.debug("api call done");
+                                                    values[index] = newData;
+                                                    setValues(Array.from(values));
+                                                    setActiveStep(index + 1);
+                                                    setLastRunStep(-1);
+                                                })
+                                                .catch((e) => {
+                                                    console.error("error in api call:", e);
+                                                    if (e instanceof Error) {
+                                                        console.debug("seting raw error");
+                                                        setApiError(e);
+                                                    } else {
+                                                        console.debug("seting parsed error");
+                                                        setApiError(new Error(e));
+                                                    }
+                                                    // values[index - 1 < 0 ? 0 : index - 1] = null;
+                                                    // setValues(Array.from(values));
+                                                    setActiveStep(index - 1);
+                                                });
+                                        }
+                                        return null;
+                                    }
+                                    default:
+                                        return null;
+                                }
+                            })()}
+                        </PersistPrefixKeyContext>
+                    );
                 })
                 .map((e, idx) => (
                     <div key={idx}>
@@ -212,7 +225,18 @@ export function PipelineRenderer({ pipeline, setOutput }: { pipeline: Pipeline<a
     return (
         <ErrorBoundary
             FallbackComponent={function ({ error }) {
-                return <div>error: {JSON.stringify(error)}</div>;
+                if (error instanceof Error) {
+                    return (
+                        <Alert severity="error">
+                            <pre>{error.stack}</pre>
+                        </Alert>
+                    );
+                }
+                return (
+                    <Alert severity="error">
+                        <pre>error: {JSON.stringify(error)}</pre>
+                    </Alert>
+                );
             }}
         >
             <Inner {...{ pipeline, setOutput }} />

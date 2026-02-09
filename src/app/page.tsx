@@ -1,6 +1,7 @@
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
 import ZoomControls from "@/components/ZoomControls.js";
+import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
 import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -21,12 +22,12 @@ import {
 } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import React, { useMemo, useState } from "react";
+import React, { createContext, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "react-tabs/style/react-tabs.css";
 import { TBALogo } from "../components/tba_lamp.js";
 import { ApiContext, TBAAPI } from "../lib/tba_api/index.js";
-import { analytics } from "./analytics-tabs/index.js";
+import { analyticsPages } from "./analytics-tabs/index.js";
 import "./styles.css";
 
 const darkTheme = createTheme({
@@ -60,6 +61,9 @@ if (key.get() === "dev") {
 const API_KEY = key.get()!;
 
 export enum Tabs {
+    /** DON'T USE THIS ONE */
+    None = "None",
+    Home = "Homepage",
     Season = "Season Analysis",
     Event = "Event Analysis"
 }
@@ -67,8 +71,17 @@ export enum Tabs {
 function TabSelect({ tab }: { tab: Tabs }) {
     return (
         <>
-            {analytics.map((e, i) => (
-                <e.TabSelect key={i} tab={tab} />
+            <PersistPrefixKeyContext value={Tabs.Home}>
+                <div hidden={tab != Tabs.Home} style={{ height: "100%" }}>
+                    home page
+                    {/* // TODO: make a home page */}
+                </div>
+            </PersistPrefixKeyContext>
+            {analyticsPages.map((e, i) => (
+                // pass tab key context to tab body
+                <PersistPrefixKeyContext key={i} value={e.name}>
+                    <e.TabSelect tab={tab} />
+                </PersistPrefixKeyContext>
             ))}
         </>
     );
@@ -77,7 +90,9 @@ function TabSelect({ tab }: { tab: Tabs }) {
 function Sidebar({ setActiveTab }: { setActiveTab: (value: Tabs) => void }) {
     return (
         <List>
-            {analytics.map((e, i) => (
+            {/* // TODO: make a home page */}
+            {/* <SidebarItem icon={<HomeIcon />} text={Tabs.Home} onClick={(e) => setActiveTab(e)} /> */}
+            {analyticsPages.map((e, i) => (
                 <SidebarItem icon={e.icon} text={e.name} onClick={(e) => setActiveTab(e)} />
             ))}
         </List>
@@ -95,6 +110,10 @@ function SidebarItem<T>({ text, icon, onClick }: { text: T; icon: React.ReactNod
     );
 }
 ("#1565c0"); // primary dark
+
+const DBNAME = "FrcAnalysis";
+const STORENAME = "AppState";
+export const PersistPrefixKeyContext = createContext("");
 
 function Home() {
     const [loaded, setLoaded] = useState(false);
@@ -166,9 +185,13 @@ function Home() {
                         </Box>
                         {loaded ? (
                             // don't render site until api has loaded
-                            <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
-                                <TabSelect tab={activeTab} />
-                            </Box>
+                            // once loaded is true, it won't change to false, so no risk in recreating DB connections
+                            <DBContextProvider dbName={DBNAME} storeName={STORENAME}>
+                                {/* don't render site until DB has loaded */}
+                                <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
+                                    <TabSelect tab={activeTab} />
+                                </Box>
+                            </DBContextProvider>
                         ) : (
                             <Box>
                                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

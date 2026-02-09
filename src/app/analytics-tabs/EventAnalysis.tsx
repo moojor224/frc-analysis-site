@@ -63,7 +63,7 @@ export default createAnalyticsPagePipeline(
                     {
                         type: "select",
                         data: events.events,
-                        key: "event_code",
+                        key: "key",
                         name: "Event",
                         label: "name"
                     } satisfies SelectInput<Event>,
@@ -77,7 +77,7 @@ export default createAnalyticsPagePipeline(
         )
         .then(([eventId, { data, events }]) => ({
             data,
-            event: events!.find((e) => e.event_code === eventId)!
+            event: events.find((e) => e.key === eventId)!
         }))
         .api((api, { data, event }) => [{ data, event }, api.getEventMatches(event.key), api.getEventTeams(event.key)] as const)
         .then(([data, matches, oopsAllTeams]) => {
