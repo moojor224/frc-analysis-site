@@ -7,6 +7,10 @@ div#root {
     padding: 0;
 }
 
+html {
+    overflow-y: clip;
+}
+
 :root {
     --zoom: 1;
 }
@@ -32,6 +36,6 @@ body {
 } */
 
 .target-team.MuiDataGrid-row,
-.target-team.MuiTableRow-root>td {
+.target-team.MuiTableRow-root > td {
     color: lime;
 }
