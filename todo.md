@@ -24,6 +24,7 @@
         - maybe make dedicated team input
 - [ ] add default value for pipeline input and optional/required indicator
 - [ ] add message to api pipeline step for loading bar
+- [ ] graphs should be able to toggle specific teams
 
 ## Event analysis
 
