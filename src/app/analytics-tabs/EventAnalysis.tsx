@@ -3,8 +3,8 @@ import { createPipeline, Input, SelectInput } from "@/app/app_structure/pipeline
 import EventDetails from "@/components/EventDetails.js";
 import { Event, Match } from "@/lib/tba_api/types.js";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import { LineChartPro } from "@mui/x-charts-premium";
+import { Box, Button, Grid, Paper, Stack } from "@mui/material";
+import { BarChartPremium, LineChartPro } from "@mui/x-charts-premium";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useState } from "react";
 import { Tabs } from "../page.js";
@@ -100,10 +100,10 @@ export default createAnalyticsPagePipeline(
                 teamKeyToNumber[t.key] = t.team_number;
             });
             const matchNumbers = new Set<number>();
-            const qm = matches.filter((e) => e.comp_level === "qm");
+            const qualifiers = matches.filter((e) => e.comp_level === "qm");
             const roll: Record<string, number> = {};
             const teamRPs = teams.map((t) => {
-                const rps = qm.map((m) => {
+                const rps = qualifiers.map((m) => {
                     matchNumbers.add(m.match_number);
                     const rp = getTeamRP(t.key, m, data.data.year);
                     const rol = (roll[t.team_number + ""] ?? 0) + rp;
@@ -122,13 +122,16 @@ export default createAnalyticsPagePipeline(
                     totalRP: rps.reduce((a, b) => a + b.rp, 0)
                 };
             });
-            const matchRPs = qm.map((e, idx) => {
+            const matchRPs = qualifiers.map((e, idx) => {
                 const entries = teamRPs.map((e) => [e.team + "", e.rps[idx].rp] as const);
                 entries.push(["match_number", e.match_number]);
                 return Object.fromEntries(entries);
             });
             const penalties: Record<string, { gained: number; lost: number; diff: number }> = {};
             matches.forEach((m) => {
+                if (!m.score_breakdown) {
+                    return;
+                }
                 const blueBad = m.score_breakdown.red.foulPoints;
                 const redBad = m.score_breakdown.blue.foulPoints;
                 const { red, blue } = m.alliances;
@@ -137,16 +140,14 @@ export default createAnalyticsPagePipeline(
                     .filter((e) => !blue.dq_team_keys.includes(e))
                     .concat(blue.surrogate_team_keys);
                 redAlliance.forEach((t) => {
-                    let data = penalties[teamKeyToNumber[t] + ""];
-                    if (!data) data = { gained: 0, lost: 0, diff: 0 };
+                    let data = penalties[teamKeyToNumber[t] + ""] ?? { gained: 0, lost: 0, diff: 0 };
                     data.gained += blueBad;
                     data.lost += redBad;
                     data.diff += blueBad - redBad;
                     penalties[teamKeyToNumber[t] + ""] = data;
                 });
                 blueAlliance.forEach((t) => {
-                    let data = penalties[teamKeyToNumber[t] + ""];
-                    if (!data) data = { gained: 0, lost: 0, diff: 0 };
+                    let data = penalties[teamKeyToNumber[t] + ""] ?? { gained: 0, lost: 0, diff: 0 };
                     data.gained += redBad;
                     data.lost += blueBad;
                     data.diff += redBad - blueBad;
@@ -170,81 +171,114 @@ export default createAnalyticsPagePipeline(
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
-        const sortedRoll = Object.entries(roll).sort(([k, v], [k2, v2]) => v - v2);
+        const rollRows = Object.entries(roll).map((e) => ({ team: parseInt(e[0]), rp: e[1], id: e[0] }));
         return (
             <Box>
                 <Stack spacing={2}>
                     <EventDetails event={event} />
-                    <Paper sx={{ padding: 3 }} elevation={6}>
-                        <Button onClick={() => setShowGraph(ShowGraph.All)}>All</Button>
-                        <Button onClick={() => setShowGraph(ShowGraph.Target)}>Only {targetTeam}</Button>
-                        <LineChartPro
-                            height={800}
-                            dataset={matchRPs}
-                            series={teams
-                                .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
-                                .map((e) => ({
-                                    dataKey: e.team_number + "",
-                                    label: e.team_number + "",
-                                    showMark: e.team_number == targetTeam,
-                                    id: e.team_number + ""
-                                }))}
-                            xAxis={[{ dataKey: "match_number" }]}
-                            yAxis={[{ width: 50 }]}
-                            hiddenItems={teams
-                                .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
-                                .map((e) => ({
-                                    seriesId: e + "",
-                                    type: "line"
-                                }))}
-                        />
-                    </Paper>
-                    <Paper elevation={6}>
-                        <Table padding="none">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Team</TableCell>
-                                    <TableCell>Total Ranking Points</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {sortedRoll.map((e, i) => (
-                                    <TableRow key={i} className={i == targetTeam ? "target-team" : ""}>
-                                        <TableCell>{e[0]}</TableCell>
-                                        <TableCell>{e[1]}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </Paper>
-                    <Paper elevation={6}>
-                        <DataGridPremium
-                            columns={[
-                                {
-                                    field: "teamNumber",
-                                    headerName: "Team #",
-                                    flex: 1,
-                                    valueGetter(v) {
-                                        return parseInt(v);
-                                    },
-                                    getSortComparator(sortDirection) {
-                                        if (sortDirection == "desc")
-                                            return function (a, b) {
-                                                return parseInt(b.teamNumber) - parseInt(a.teamNumber);
-                                            };
-                                        return function (a, b) {
-                                            return parseInt(a.teamNumber) - parseInt(b.teamNumber);
-                                        };
-                                    }
-                                },
-                                { field: "gained", headerName: "Other team penalties", flex: 1 },
-                                { field: "diff", headerName: "Penalty differential", flex: 1 },
-                                { field: "lost", headerName: "Penalties commited", flex: 1 }
-                            ]}
-                            rows={penalties}
-                            disableRowSelectionOnClick
-                        />
-                    </Paper>
+                    {/* <Paper sx={{ padding: 3 }} elevation={6}> */}
+                    <Grid container columns={{ xs: 4, sm: 8, md: 12 }} spacing={4}>
+                        <Grid hidden={rollRows.length == 0} size={12}>
+                            <Paper elevation={6}>
+                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.All)}>
+                                    All
+                                </Button>
+                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.Target)}>
+                                    Only {targetTeam}
+                                </Button>
+                                <LineChartPro
+                                    height={800}
+                                    dataset={matchRPs}
+                                    series={teams
+                                        .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
+                                        .map((e) => ({
+                                            dataKey: e.team_number + "",
+                                            label: e.team_number + "",
+                                            showMark: e.team_number == targetTeam,
+                                            id: e.team_number + ""
+                                        }))}
+                                    xAxis={[{ dataKey: "match_number" }]}
+                                    yAxis={[{ width: 50 }]}
+                                    hiddenItems={teams
+                                        .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
+                                        .map((e) => ({
+                                            seriesId: e + "",
+                                            type: "line"
+                                        }))}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid hidden={penalties.length == 0} size={12} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <BarChartPremium
+                                    height={600}
+                                    dataset={penalties
+                                        .filter((e) => e.teamNumber !== "undefined")
+                                        .sort((a, b) => a.diff - b.diff)}
+                                    series={[
+                                        {
+                                            dataKey: "diff"
+                                        }
+                                    ]}
+                                    xAxis={[{ dataKey: "teamNumber" }]}
+                                    yAxis={[
+                                        {
+                                            dataKey: "diff",
+                                            colorMap: {
+                                                type: "piecewise",
+                                                thresholds: [0],
+                                                colors: ["red", "green"]
+                                            }
+                                        }
+                                    ]}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid hidden={penalties.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <DataGridPremium
+                                    rowHeight={25}
+                                    columns={[
+                                        {
+                                            field: "teamNumber",
+                                            headerName: "Team #",
+                                            flex: 1,
+                                            valueGetter(v, m) {
+                                                const num = parseInt(m.teamNumber);
+                                                if (isNaN(num)) return m.teamNumber;
+                                                return num;
+                                            }
+                                        },
+                                        { field: "gained", headerName: "Other team penalties", flex: 1 },
+                                        { field: "diff", headerName: "Penalty differential", flex: 1 },
+                                        { field: "lost", headerName: "Penalties commited", flex: 1 }
+                                    ]}
+                                    rows={penalties.filter((e) => e.teamNumber !== "undefined")}
+                                    disableRowSelectionOnClick
+                                    getRowClassName={(params) => {
+                                        return parseInt(params.row.teamNumber) == targetTeam ? "target-team" : "";
+                                    }}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid hidden={rollRows.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <DataGridPremium
+                                    rowHeight={25}
+                                    columns={[
+                                        { field: "team", headerName: "Team #", flex: 1 },
+                                        { field: "rp", headerName: "Total Ranking Points", flex: 1 }
+                                    ]}
+                                    rows={rollRows}
+                                    disableRowSelectionOnClick
+                                    getRowClassName={(params) => {
+                                        return params.row.team == targetTeam ? "target-team" : "";
+                                    }}
+                                />
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                    {/* </Paper> */}
                 </Stack>
             </Box>
         );
