@@ -1,7 +1,7 @@
 {
     "arrowParens": "always",
     "objectWrap": "preserve",
-    "printWidth": 100,
+    "printWidth": 128,
     "proseWrap": "preserve",
     "quoteProps": "as-needed",
     "semi": true,
