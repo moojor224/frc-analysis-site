@@ -190,7 +190,7 @@ function Home() {
                         {loaded ? (
                             // don't render site until api has loaded
                             // once loaded is true, it won't change to false, so no risk in recreating DB connections
-                            <DBContextProvider dbName={DBNAME} storeName={STORENAME}>
+                            <DBContextProvider dbName={DBNAME} storeName={STORENAME} wait={false}>
                                 {/* don't render site until DB has loaded */}
                                 <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
                                     <TabSelect tab={activeTab} />

@@ -151,8 +151,7 @@ function useDBCacheAdapter(dbName: string, storeName: string): DBAdapter {
 }
 
 const localCache: Record<string, any> = {};
-/** context supplier ro DB cache. defaults to local cache */
-export const DBContext = createContext<DBAdapter>({
+const localAdapter = {
     ready: true,
     error: false,
     getValue<T>(key: string): T {
@@ -171,18 +170,41 @@ export const DBContext = createContext<DBAdapter>({
             }
         });
     }
-});
+};
+/** context supplier ro DB cache. defaults to local cache */
+export const DBContext = createContext<DBAdapter>(localAdapter);
 
 let count = 0;
 /** wrapper that only renders children when dbadapter is ready */
 export function DBContextProvider({
     dbName,
     storeName,
-    children
+    children,
+    wait = true,
+    Fallback = function ({ dbAdapter }) {
+        return (
+            <div>
+                <div>Waiting for database:</div>
+                <div>DB ready: {dbAdapter.ready + ""}</div>
+                <div>DB error: {dbAdapter.error + ""}</div>
+            </div>
+        );
+    }
 }: {
+    /** the name of the database */
     dbName: string;
+    /** the name of the object store */
     storeName: string;
     children?: React.ReactNode;
+    /**
+     * if true or not specified, will not render child nodes until the DB is initialized
+     *
+     * if false. will render child nodes immediately and fallback to the local cache for object storage\
+     * if the database finishes initializing later on, all changes made to the local cache will be synced to the database
+     */
+    wait?: boolean;
+    /** fallback component to render if database is not initialized and `wait` is true or not specified */
+    Fallback?: React.FunctionComponent<{ dbAdapter: DBAdapter }>;
 }) {
     if (count > 10) {
         debugger;
@@ -190,20 +212,14 @@ export function DBContextProvider({
     }
     count++;
     const dbAdapter = useDBCacheAdapter(dbName, storeName);
-    if (dbAdapter.error) {
-        // this will cause all useContext(DBContext) to resolve to the fallback value of a local cache
-        return <>{children}</>;
-    }
     if (dbAdapter.ready) {
         return <DBContext value={dbAdapter}>{children}</DBContext>;
     }
-    return (
-        <div>
-            <div>Waiting for database:</div>
-            <div>DB ready: {dbAdapter.ready + ""}</div>
-            <div>DB error: {dbAdapter.error + ""}</div>
-        </div>
-    );
+    if (dbAdapter.error || !wait) {
+        // this will cause all useContext(DBContext) to resolve to the fallback value of a local cache
+        return <>{children}</>;
+    }
+    return <Fallback {...{ dbAdapter }} />;
 }
 
 function valueOrDefault<T>(val: T | null | undefined, def: T) {
