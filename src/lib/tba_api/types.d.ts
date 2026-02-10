@@ -258,7 +258,7 @@ export type LeaderboardInsight = {
 };
 export type Match = {
     key: string;
-    comp_level: string;
+    comp_level: "qm" | "ef" | "qf" | "sf" | "f";
     set_number: number;
     match_number: number;
     alliances: {
