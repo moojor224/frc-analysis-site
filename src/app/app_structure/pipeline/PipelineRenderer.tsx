@@ -73,6 +73,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
     const analyticsPageTabPrefix = useContext(PersistPrefixKeyContext);
     const [values, setValues] = useDBPersistentValue<any[]>(`${analyticsPageTabPrefix}-valuesarr`, []);
     const [activeStep, setActiveStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-activestep`, 0);
+    // keep track of last run api call step. only call setLastRunStep on steps that don't auto-run
     const [lastRunStep, setLastRunStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-lastrunstep`, -1);
     const [apiError, setApiError] = useState<Error | null>(null);
     const api = useContext(ApiContext);
@@ -118,6 +119,9 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                             />
                                         );
                                     case "show":
+                                        values[index] = getLastData();
+                                        setValues(Array.from(values));
+                                        setActiveStep(index + 1);
                                         return (
                                             <div key={index}>
                                                 <step.render data={values[index - 1]} />
