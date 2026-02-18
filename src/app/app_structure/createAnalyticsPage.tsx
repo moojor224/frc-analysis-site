@@ -9,13 +9,14 @@ import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
-import { Container, Paper, Stack } from "@mui/material";
+import { Alert, Container, Paper, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Tab from "@mui/material/Tab";
 import type { TabScrollButtonProps } from "@mui/material/TabScrollButton";
 import MaterialTabs from "@mui/material/Tabs";
 import React, { useContext } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { useInstanceManager } from "./analytics_page/useInstanceManager.js";
 
 type PickerComponent<T> = React.FunctionComponent<{
@@ -37,7 +38,13 @@ function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
         </Button>
     );
 }
-
+function FallbackComponent({ error }: { error: unknown }) {
+    let message = "An unknown error has occurred";
+    if (error instanceof Error) {
+        message = error.message;
+    }
+    return <Alert severity="error">{message}</Alert>;
+}
 export function createAnalyticsPage<T>(
     name: Tabs,
     icon: React.ReactNode,
@@ -52,15 +59,19 @@ export function createAnalyticsPage<T>(
         return (
             <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
-                    <Paper elevation={4} sx={{ padding: 3 }}>
-                        <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
-                    </Paper>
+                    <ErrorBoundary resetKeys={[data]} FallbackComponent={FallbackComponent}>
+                        <Paper elevation={4} sx={{ padding: 3 }}>
+                            <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
+                        </Paper>
+                    </ErrorBoundary>
                     {data === null ? (
                         <></>
                     ) : (
-                        <Paper elevation={4} sx={{ padding: 3, wordWrap: "break-word" }}>
-                            <BodyComponent {...{ api, data }} tabId={`${name}-${0}`} />
-                        </Paper>
+                        <ErrorBoundary FallbackComponent={FallbackComponent}>
+                            <Paper elevation={4} sx={{ padding: 3, wordWrap: "break-word" }}>
+                                <BodyComponent {...{ api, data }} tabId={`${name}-${0}`} />
+                            </Paper>
+                        </ErrorBoundary>
                     )}
                 </Stack>
             </Container>
