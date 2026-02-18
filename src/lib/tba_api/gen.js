@@ -15,7 +15,8 @@ function run() {
 import fs from "fs";
 import paths from "./api.json" with { type: "json" };
 
-function gen(name, type, path, desc) {
+const typesName = "types";
+function genTypescript(name, type, path, desc) {
     if (!(name.length > 0 && type.length > 0 && path.length > 0)) return "";
     const args = Array.from(path.matchAll(/{([^}]+)}/g));
     const func = `${desc ? `/** ${desc} */` : ""}${name}(${args
@@ -27,14 +28,49 @@ function gen(name, type, path, desc) {
     return func;
 }
 
-const typesName = "types";
-const methods = [];
+function genJava(name, type, path, desc) {
+    if (!(name.length > 0 && type.length > 0 && path.length > 0)) return "";
+    const args = Array.from(path.matchAll(/{([^}]+)}/g));
+    const func = `${desc ? `/** ${desc} */` : ""}public ${type} ${name}(${args
+        .map((e) => "String " + e[1])
+        .join(
+            ", "
+        )}) throws Exception {\n    return _fetch(BASE_URL + ${args.length > 0 ? `"${path.replaceAll("{", '"+').replaceAll("}", '+"')}"` : `"${path}"`}, this.API_KEY, ${type}.class);\n}`;
+    return func;
+}
 
-Object.entries(paths).forEach(([funcName, funcData]) => {
-    methods.push(gen(funcName, funcData.type, funcData.path, funcData.description));
+/**
+ * @template T
+ * @param {T} typeData
+ * @param {keyof Exclude<T, string>} type
+ */
+function getType(typeData, type) {
+    if (typeof typeData == "string") {
+        return typeData;
+    }
+    return typeData[type] ?? "";
+}
+
+const typescriptMethods = Object.entries(paths).map(([funcName, funcData]) => {
+    return genTypescript(funcName, getType(funcData.type, "typescript"), funcData.path, funcData.description);
+});
+const javaMethods = Object.entries(paths).map(([funcName, funcData]) => {
+    return genJava(funcName, getType(funcData.type, "java"), funcData.path, funcData.description);
 });
 
-const clss = `
+function template(strings, ...keys) {
+    return (...values) => {
+        const dict = values[values.length - 1] || {};
+        const result = [strings[0]];
+        keys.forEach((key, i) => {
+            const value = Number.isInteger(key) ? values[key] : dict[key];
+            result.push(value, strings[i + 1]);
+        });
+        return result.join("");
+    };
+}
+
+const typescriptClass = `
 class TBAAPI extends EventTarget {
     API_KEY: string;
     status: ${typesName}.API_Status | null = null;
@@ -54,7 +90,11 @@ class TBAAPI extends EventTarget {
     on(event: string, callback: () => void) {
         this.addEventListener(event, callback);
     }
-    ${methods.join("\n").trim()}
+    ${typescriptMethods.join("\n").trim()}
 }`;
+const javaClass = `
+    ${javaMethods.join("\n").trim()}
+`;
 
-fs.writeFileSync("out.ts", clss);
+fs.writeFileSync("out.ts", typescriptClass);
+fs.writeFileSync("out.java", javaClass);

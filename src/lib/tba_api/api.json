@@ -16,7 +16,10 @@
         "path": "/district/{district_abbreviation}/insights"
     },
     "getDisctrictAdvancement": {
-        "type": "Record<string, types.District_Advancement>",
+        "type": {
+            "typescript": "Record<string, types.District_Advancement>",
+            "java": "Map<String, District_Advancement>"
+        },
         "path": "/district/{district_key}/advancement"
     },
     "getDistrictAwards": {
@@ -28,7 +31,10 @@
         "path": "/district/{district_key}/events"
     },
     "getDistrictEventKeys": {
-        "type": "string[]",
+        "type": {
+            "typescript": "string[]",
+            "java": "String[]"
+        },
         "path": "/district/{district_key}/events/keys"
     },
     "getDistrictSimpleEvents": {
@@ -44,7 +50,10 @@
         "path": "/district/{district_key}/teams"
     },
     "getDistrictTeamKeys": {
-        "type": "string[]",
+        "type": {
+            "typescript": "string[]",
+            "java": "String[]"
+        },
         "path": "/district/{district_key}/teams/keys"
     },
     "getDistrictTeamsSimple": {
@@ -76,7 +85,10 @@
         "path": "/event/{event_key}/awards"
     },
     "getEventCOPRs": {
-        "type": "Record<string, types.Event_COPRs>",
+        "type": {
+            "typescript": "Record<string, types.Event_COPRs>",
+            "java": "Map<String, Event_COPRs>"
+        },
         "path": "/event/{event_key}/coprs"
     },
     "getEventDistrictPoints": {
@@ -92,7 +104,10 @@
         "path": "/event/{event_key}/matches"
     },
     "getEventMatchKeys": {
-        "type": "string[]",
+        "type": {
+            "typescript": "string[]",
+            "java": "String[]"
+        },
         "path": "/event/{event_key}/matches/keys"
     },
     "getEventMatchesSimple": {
@@ -100,7 +115,10 @@
         "path": "/event/{event_key}/matches/simple"
     },
     "getEventMatchTimeseries": {
-        "type": "string[]",
+        "type": {
+            "typescript": "string[]",
+            "java": "String[]"
+        },
         "path": "/event/{event_key}/matches/timeseries"
     },
     "getEventOPRs": {
