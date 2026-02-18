@@ -35,7 +35,20 @@ body {
     height: 0px;
 } */
 
+@keyframes flash-team {
+    0% {
+        color: lime;
+    }
+    50% {
+        color: green;
+    }
+    100% {
+        color: lime;
+    }
+}
+
 .target-team.MuiDataGrid-row,
 .target-team.MuiTableRow-root > td {
     color: lime;
+    /* animation: flash-team 2s linear infinite; */
 }
