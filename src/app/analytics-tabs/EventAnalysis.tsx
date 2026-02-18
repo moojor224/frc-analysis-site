@@ -10,14 +10,22 @@ import { useState } from "react";
 import { Tabs } from "../page.js";
 
 function getTeamRP(teamKey: string, match: Match, year: number) {
+    if (match.comp_level !== "qm") return 0;
     const { red, blue } = match.alliances;
     const redHas = red.team_keys.includes(teamKey);
+    const blueHas = blue.team_keys.includes(teamKey);
+    if (!(redHas || blueHas)) return 0;
     let alliance: "red" | "blue" = "blue";
     if (redHas) {
         alliance = "red";
     }
     // TODO: check year
     return (match.score_breakdown[alliance]?.rp as number) ?? 0;
+}
+
+function renderDiffCell(params: { row: { diff: number }; value?: any }) {
+    const color = params.row.diff > 0 ? "lime" : params.row.diff == 0 ? "white" : "red";
+    return <Box color={color}>{params.value}</Box>;
 }
 
 export default createAnalyticsPagePipeline(
@@ -99,12 +107,10 @@ export default createAnalyticsPagePipeline(
             teams.forEach((t) => {
                 teamKeyToNumber[t.key] = t.team_number;
             });
-            const matchNumbers = new Set<number>();
             const qualifiers = matches.filter((e) => e.comp_level === "qm");
             const roll: Record<string, number> = {};
             const teamRPs = teams.map((t) => {
                 const rps = qualifiers.map((m) => {
-                    matchNumbers.add(m.match_number);
                     const rp = getTeamRP(t.key, m, data.data.year);
                     const rol = (roll[t.team_number + ""] ?? 0) + rp;
                     roll[t.team_number + ""] = rol;
@@ -129,7 +135,7 @@ export default createAnalyticsPagePipeline(
             });
             const penalties: Record<string, { gained: number; lost: number; diff: number }> = {};
             matches.forEach((m) => {
-                if (!m.score_breakdown) {
+                if (!m.score_breakdown || m.comp_level !== "qm") {
                     return;
                 }
                 const blueBad = m.score_breakdown.red.foulPoints;
@@ -156,7 +162,45 @@ export default createAnalyticsPagePipeline(
             });
             const penaltiesFormatted = Object.entries(penalties).map((e, idx) => ({ ...e[1], teamNumber: e[0], id: idx }));
             // Array.from(matchNumbers).sort((a, b) => a - b)
-            return [data, teams, matchRPs, roll, penaltiesFormatted] as const;
+            const teamMatches = matches
+                .map((m) => {
+                    if (m.comp_level !== "qm") return null;
+                    const { red, blue } = m.alliances;
+                    const redAlliance = red.team_keys
+                        .filter((e) => !red.dq_team_keys.includes(e))
+                        .concat(red.surrogate_team_keys);
+                    const blueAlliance = blue.team_keys
+                        .filter((e) => !blue.dq_team_keys.includes(e))
+                        .concat(blue.surrogate_team_keys);
+                    const isRed = redAlliance.includes("frc" + data.data.team);
+                    const isBlue = blueAlliance.includes("frc" + data.data.team);
+                    if (!isRed && !isBlue) return null;
+                    let myPen = 0;
+                    let theyPen = 0;
+                    let score = 0;
+                    if (isRed) {
+                        myPen = m.score_breakdown?.blue?.foulPoints ?? 0;
+                        theyPen = m.score_breakdown?.red?.foulPoints ?? 0;
+                        score = red.score;
+                    }
+                    if (isBlue) {
+                        myPen = m.score_breakdown?.red?.foulPoints ?? 0;
+                        theyPen = m.score_breakdown?.blue?.foulPoints ?? 0;
+                        score = blue.score;
+                    }
+                    const matchData = {
+                        id: m.match_number + m.comp_level,
+                        number: m.match_number,
+                        penCommit: myPen,
+                        oppPenCommit: theyPen,
+                        diff: theyPen - myPen,
+                        level: m.comp_level,
+                        score
+                    };
+                    return matchData;
+                })
+                .filter((e) => e !== null);
+            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches] as const;
         }),
     function ({
         data: [
@@ -167,7 +211,8 @@ export default createAnalyticsPagePipeline(
             teams,
             matchRPs,
             roll,
-            penalties
+            penalties,
+            teamMatches
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
@@ -250,7 +295,12 @@ export default createAnalyticsPagePipeline(
                                             }
                                         },
                                         { field: "gained", headerName: "Other team penalties", flex: 1 },
-                                        { field: "diff", headerName: "Penalty differential", flex: 1 },
+                                        {
+                                            field: "diff",
+                                            headerName: "Penalty differential",
+                                            flex: 1,
+                                            renderCell: renderDiffCell
+                                        },
                                         { field: "lost", headerName: "Penalties commited", flex: 1 }
                                     ]}
                                     rows={penalties.filter((e) => e.teamNumber !== "undefined")}
@@ -274,6 +324,27 @@ export default createAnalyticsPagePipeline(
                                     getRowClassName={(params) => {
                                         return params.row.team == targetTeam ? "target-team" : "";
                                     }}
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid size={{ xs: 4, sm: 8, md: 12 }} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <DataGridPremium
+                                    rowHeight={25}
+                                    columns={[
+                                        { field: "number", headerName: "Match #", flex: 1 },
+                                        { field: "penCommit", headerName: "Penalties commited", flex: 1 },
+                                        { field: "oppPenCommit", headerName: "Other team penalties", flex: 1 },
+                                        {
+                                            field: "diff",
+                                            headerName: "Penalty differential",
+                                            flex: 1,
+                                            renderCell: renderDiffCell
+                                        },
+                                        { field: "score", headerName: "Total Score", flex: 1 }
+                                    ]}
+                                    rows={teamMatches}
+                                    disableRowSelectionOnClick
                                 />
                             </Paper>
                         </Grid>
