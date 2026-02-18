@@ -1,7 +1,7 @@
 import { PersistPrefixKeyContext } from "@/app/page.js";
 import { ApiContext } from "@/lib/tba_api/index.js";
 import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
-import { Alert, Box, CircularProgress, CircularProgressProps, Grid, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { Pipeline } from "./index.js";
@@ -89,6 +89,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
     }, [activeStep, values]);
     return (
         <div>
+            <LinearProgress variant="determinate" value={(activeStep * 100) / steps.length} />
             {steps
                 .map((step, index, arr) => {
                     if (index > activeStep) return null;
@@ -119,9 +120,11 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                             />
                                         );
                                     case "show":
-                                        values[index] = getLastData();
-                                        setValues(Array.from(values));
-                                        setActiveStep(index + 1);
+                                        if (activeStep === index) {
+                                            values[index] = getLastData();
+                                            setValues(Array.from(values));
+                                            setActiveStep(index + 1);
+                                        }
                                         return (
                                             <div key={index}>
                                                 <step.render data={values[index - 1]} />

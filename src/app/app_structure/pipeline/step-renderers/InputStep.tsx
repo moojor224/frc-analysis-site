@@ -44,7 +44,7 @@ export default function InputStepComponent({
             <br />
             <Grid container spacing={2} direction="row">
                 {inputs.map((input, index) => (
-                    <PersistPrefixKeyContext value={`${analyticsPageTabInputstepPrefix}-input${index}`}>
+                    <PersistPrefixKeyContext key={index} value={`${analyticsPageTabInputstepPrefix}-input${index}`}>
                         {(() => {
                             switch (input.type) {
                                 case "number":
