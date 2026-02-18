@@ -1,14 +1,45 @@
 import { createContext } from "react";
 import * as types from "./types.js"; // import all types
 
+type Action<T> = () => Promise<T>;
+
+class RateLimiter {
+    private rate: number;
+    private interval: number;
+    private active = 0;
+    constructor(rate: number, interval: number = 10) {
+        this.rate = rate;
+        this.interval = interval;
+    }
+    run<T>(action: Action<T>): Promise<T> {
+        return new Promise<T>((resolve) => {
+            const run = async () => {
+                if (this.active < this.rate) {
+                    this.active++;
+                    const result = await action();
+                    this.active--;
+                    resolve(result);
+                } else {
+                    setTimeout(run, this.interval);
+                }
+            };
+            run();
+        });
+    }
+}
+
+const rateLimit = new RateLimiter(5);
+
 const BASE_URL = "https://www.thebluealliance.com/api/v3";
 
 /** fetch wrapper to auto-process api responses */
 async function _fetch<T>(url: string, API_KEY: string, abort?: AbortController): Promise<null | T> {
     // get api response
-    const response = await fetch(url, { headers: { "X-TBA-Auth-Key": API_KEY }, signal: abort?.signal }).catch((err) => {
+    const response = await rateLimit.run(() =>
+        fetch(url, { headers: { "X-TBA-Auth-Key": API_KEY }, signal: abort?.signal }).catch((err) => {
         return { status: 400 } as const;
-    });
+        })
+    );
     // check api response status code
     if (response.status === 200) {
         // parse data and return
