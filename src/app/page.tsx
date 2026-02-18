@@ -1,3 +1,4 @@
+import ClearData from "@/components/ClearData.js";
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
 import ZoomControls from "@/components/ZoomControls.js";
@@ -154,6 +155,10 @@ function Home() {
                         <Sidebar {...{ setActiveTab }} />
                         <Divider />
                         <Box flexGrow={1} />
+                        <Divider sx={{ marginBottom: "5px" }} />
+                        <DBContextProvider dbName={DBNAME} storeName={STORENAME}>
+                            <ClearData />
+                        </DBContextProvider>
                         <Divider sx={{ marginBottom: "5px" }} />
                         <ZoomControls />
                         <Divider sx={{ marginTop: "10px" }} />
