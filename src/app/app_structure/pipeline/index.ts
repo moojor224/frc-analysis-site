@@ -104,6 +104,7 @@ class PipelineBuilder<TCurrent> {
             this.steps = steps;
         }
     }
+    /** display various inputs to get data from the user */
     getInputs<TInputs extends readonly Input[]>(
         inputs: TInputs | ((prev: TCurrent) => TInputs),
         buttonLabel: string,
@@ -116,24 +117,28 @@ class PipelineBuilder<TCurrent> {
             divider
         });
     }
+    /** do something with the data from the previous step */
     then<TNext>(fn: (data: TCurrent) => Promise<Narrow<TNext>> | Narrow<TNext>) {
         return new PipelineBuilder<TNext>(this.steps, {
             kind: "transform",
             run: fn
         });
     }
+    /** make an api call */
     api<TNext, T extends any[] = Promise<TNext>[]>(fn: (api: TBAAPI, data: TCurrent) => T) {
         return new PipelineBuilder<ArrayToTuple<T>>(this.steps, {
             kind: "api",
             run: fn
         });
     }
+    /** show an arbitrary react component */
     show(render: React.FunctionComponent<{ data: TCurrent }>) {
         return new PipelineBuilder<TCurrent>(this.steps, {
             kind: "show",
             render
         });
     }
+    /** show a message if the data from the previous step is null or undefined */
     messageIfNone(message: string, severity: MessageType) {
         return new PipelineBuilder<Exclude<TCurrent, null | undefined>>(this.steps, {
             kind: "messageIfNone",
@@ -141,6 +146,7 @@ class PipelineBuilder<TCurrent> {
             severity
         });
     }
+    /** get the list of steps from the pipeline */
     build() {
         return this.steps;
     }
