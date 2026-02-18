@@ -37,7 +37,7 @@ async function _fetch<T>(url: string, API_KEY: string, abort?: AbortController):
     // get api response
     const response = await rateLimit.run(() =>
         fetch(url, { headers: { "X-TBA-Auth-Key": API_KEY }, signal: abort?.signal }).catch((err) => {
-        return { status: 400 } as const;
+            return { status: 400 } as const;
         })
     );
     // check api response status code
@@ -100,7 +100,7 @@ export class TBAAPI extends EventTarget {
     getDistrictAwards(district_key: string, abort?: AbortController): APIResponse<types.Award> {
         return _fetch(BASE_URL + `/district/${district_key}/awards`, this.API_KEY, abort);
     }
-    getDistrictEvents(district_key: string, abort?: AbortController): APIResponse<types.Event> {
+    getDistrictEvents(district_key: string, abort?: AbortController): APIResponse<types.Event[]> {
         return _fetch(BASE_URL + `/district/${district_key}/events`, this.API_KEY, abort);
     }
     getDistrictEventKeys(district_key: string, abort?: AbortController): APIResponse<string[]> {

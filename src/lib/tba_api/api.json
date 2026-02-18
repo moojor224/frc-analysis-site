@@ -27,7 +27,7 @@
         "path": "/district/{district_key}/awards"
     },
     "getDistrictEvents": {
-        "type": "Event",
+        "type": "Event[]",
         "path": "/district/{district_key}/events"
     },
     "getDistrictEventKeys": {
