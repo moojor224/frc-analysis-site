@@ -1,4 +1,5 @@
 import ClearData from "@/components/ClearData.js";
+import FallbackComponent from "@/components/FallbackComponent.js";
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
 import ZoomControls from "@/components/ZoomControls.js";
@@ -25,6 +26,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import React, { createContext, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
+import { ErrorBoundary } from "react-error-boundary";
 import "react-tabs/style/react-tabs.css";
 import { TBALogo } from "../components/tba_lamp.js";
 import { ApiContext, TBAAPI } from "../lib/tba_api/index.js";
@@ -198,7 +200,9 @@ function Home() {
                             <DBContextProvider dbName={DBNAME} storeName={STORENAME} wait={false}>
                                 {/* don't render site until DB has loaded */}
                                 <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
-                                    <TabSelect tab={activeTab} />
+                                    <ErrorBoundary FallbackComponent={FallbackComponent}>
+                                        <TabSelect tab={activeTab} />
+                                    </ErrorBoundary>
                                 </Box>
                             </DBContextProvider>
                         ) : (
