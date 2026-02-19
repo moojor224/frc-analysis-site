@@ -1,4 +1,5 @@
 import { PersistPrefixKeyContext, Tabs } from "@/app/page.js";
+import FallbackComponent from "@/components/FallbackComponent.js";
 import { ApiContext, TBAAPI } from "@/lib/tba_api/index.js";
 import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
 import { localstorageAdapter, useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
@@ -9,7 +10,7 @@ import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
-import { Alert, Container, Paper, Stack } from "@mui/material";
+import { Container, Paper, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Tab from "@mui/material/Tab";
@@ -38,13 +39,7 @@ function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
         </Button>
     );
 }
-function FallbackComponent({ error }: { error: unknown }) {
-    let message = "An unknown error has occurred";
-    if (error instanceof Error) {
-        message = error.message;
-    }
-    return <Alert severity="error">{message}</Alert>;
-}
+
 export function createAnalyticsPage<T>(
     name: Tabs,
     icon: React.ReactNode,
@@ -92,7 +87,8 @@ export function createAnalyticsPage<T>(
         }
         function closeTab() {
             console.info("closing tab", activeTab);
-            const instance = manager.instances[activeTab]!;
+            const instance = manager.instances[activeTab];
+            if (!instance) return;
             delete tabNameMap[instance.id];
             setTabNameMap({ ...tabNameMap });
             manager.removeInstance(activeTab);
@@ -102,6 +98,13 @@ export function createAnalyticsPage<T>(
             const prefix = analyticsPageId + "-" + activeTab;
             IDB.clear(prefix);
             localstorageAdapter.clear(prefix);
+        }
+        const selectedInstance = manager.instances[activeTab];
+        if (!selectedInstance && manager.instances.length > 0) {
+            const instance = manager.instances.find((e) => e);
+            if (instance) {
+                setActiveTab(manager.instances.indexOf(instance));
+            }
         }
         function addInstance() {
             const id = manager.addInstance({}).id;
