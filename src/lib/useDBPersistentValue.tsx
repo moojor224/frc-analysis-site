@@ -15,7 +15,6 @@ type DB =
 
 /** sets up connection to IDB */
 function useIndexedDB(dbName: string, storeName: string, version: number): DB {
-    console.group("useIndexedDB");
     const [db, setDB] = useState<IDBDatabase | null>(null);
     const [error, setError] = useState(false);
     useEffect(() => {
@@ -28,14 +27,12 @@ function useIndexedDB(dbName: string, storeName: string, version: number): DB {
         };
         request.onsuccess = function () {
             setDB(request.result);
-            console.log("successfully connected to db");
+            console.info("successfully connected to db");
         };
         request.onerror = function () {
             setError(true);
         };
     }, []);
-    console.log("db", db);
-    console.groupEnd();
     return {
         /** true if database is ready */
         ready: !!db,
@@ -48,7 +45,6 @@ function useIndexedDB(dbName: string, storeName: string, version: number): DB {
 
 /** downloads database into cache object */
 function useDBCache(db: IDBDatabase | null, storeName: string) {
-    console.group("useDBCache");
     const [initialized, setInitialized] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const cache: Record<string, any> = useMemo(() => ({}), []);
@@ -64,8 +60,6 @@ function useDBCache(db: IDBDatabase | null, storeName: string) {
         };
         keyreq.onsuccess = function () {
             const keys = keyreq.result.map((e) => e.toString());
-            console.log("keys:", keys);
-            console.log("cache before", { ...cache });
             Promise.allSettled<{ key: string; value: any }>(
                 keys.map(
                     (e) =>
@@ -85,12 +79,10 @@ function useDBCache(db: IDBDatabase | null, storeName: string) {
                         cache[v.value.key] = v.value.value;
                     }
                 });
-                console.log("cache after", { ...cache });
                 setInitialized(true);
             });
         };
     }, [db, initialized]);
-    console.groupEnd();
     return {
         initialized,
         cache,
@@ -111,7 +103,6 @@ type DBAdapter = {
 function useDBCacheAdapter(dbName: string, storeName: string): DBAdapter {
     const database = useIndexedDB(dbName, storeName, 1);
     const cache = useDBCache(database.database, storeName);
-    console.debug("cinit", cache.initialized);
     return {
         ready: database.ready && cache.initialized,
         error: database.error || !!cache.error,
@@ -238,7 +229,6 @@ function valueOrDefault<T>(val: T | null | undefined, def: T) {
 export function useDBPersistentValue<T>(key: string, initialValue: T) {
     const dbAdapter = useContext(DBContext);
     const [stateVal, setStateVal] = useState(() => {
-        // console.debug("initialize", key);
         const val = valueOrDefault(dbAdapter.getValue<T>(key), initialValue);
         if (val.usedDefault) {
             dbAdapter.setValue(key, val.value);
@@ -254,7 +244,6 @@ export function useDBPersistentValue<T>(key: string, initialValue: T) {
             } else {
                 v = arg0;
             }
-            // console.debug("set store value", key, v);
             dbAdapter.setValue(key, v);
             setStateVal(v);
         }
