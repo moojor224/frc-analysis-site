@@ -28,6 +28,12 @@ function renderDiffCell(params: { row: { diff: number }; value?: any }) {
     return <Box color={color}>{params.value}</Box>;
 }
 
+enum ShowGraph {
+    All,
+    Target,
+    None
+}
+
 export default createAnalyticsPagePipeline(
     Tabs.Event,
     <EmojiEventsIcon />,
@@ -226,26 +232,16 @@ export default createAnalyticsPagePipeline(
                     <Grid container columns={{ xs: 4, sm: 8, md: 12 }} spacing={4}>
                         <Grid hidden={rollRows.length == 0} size={12}>
                             <Paper elevation={6}>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setShowGraph(ShowGraph.All);
-                                        setKey(key + 1);
-                                    }}
-                                >
+                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.All)}>
                                     All
                                 </Button>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setShowGraph(ShowGraph.Target);
-                                        setKey(key + 1);
-                                    }}
-                                >
+                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.Target)}>
                                     Only {targetTeam}
                                 </Button>
+                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.None)}>
+                                    None
+                                </Button>
                                 <LineChartPro
-                                    key={showGraph + key}
                                     height={800}
                                     dataset={matchRPs}
                                     series={teams.map((e) => ({
@@ -256,9 +252,10 @@ export default createAnalyticsPagePipeline(
                                     }))}
                                     xAxis={[{ dataKey: "match_number" }]}
                                     yAxis={[{ width: 50 }]}
-                                    initialHiddenItems={teams
+                                    hiddenItems={teams
                                         .filter(
                                             (e) =>
+                                                showGraph == ShowGraph.None ||
                                                 !(
                                                     (showGraph === ShowGraph.Target && e.team_number == targetTeam) ||
                                                     showGraph === ShowGraph.All
@@ -288,7 +285,7 @@ export default createAnalyticsPagePipeline(
                                             dataKey: "diff"
                                         }
                                     ]}
-                                    xAxis={[{ dataKey: "teamNumber" }]}
+                                    xAxis={[{ dataKey: "teamNumber", tickLabelStyle: { angle: 75, fontSize: 12 }, height: 50 }]}
                                     yAxis={[
                                         {
                                             dataKey: "diff",
@@ -378,7 +375,3 @@ export default createAnalyticsPagePipeline(
         );
     }
 );
-enum ShowGraph {
-    All,
-    Target
-}
