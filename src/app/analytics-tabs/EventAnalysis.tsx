@@ -216,6 +216,7 @@ export default createAnalyticsPagePipeline(
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
+        const [key, setKey] = useState(0);
         const rollRows = Object.entries(roll).map((e) => ({ team: parseInt(e[0]), rp: e[1], id: e[0] }));
         return (
             <Box>
@@ -225,31 +226,53 @@ export default createAnalyticsPagePipeline(
                     <Grid container columns={{ xs: 4, sm: 8, md: 12 }} spacing={4}>
                         <Grid hidden={rollRows.length == 0} size={12}>
                             <Paper elevation={6}>
-                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.All)}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setShowGraph(ShowGraph.All);
+                                        setKey(key + 1);
+                                    }}
+                                >
                                     All
                                 </Button>
-                                <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.Target)}>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setShowGraph(ShowGraph.Target);
+                                        setKey(key + 1);
+                                    }}
+                                >
                                     Only {targetTeam}
                                 </Button>
                                 <LineChartPro
+                                    key={showGraph + key}
                                     height={800}
                                     dataset={matchRPs}
-                                    series={teams
-                                        .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
-                                        .map((e) => ({
-                                            dataKey: e.team_number + "",
-                                            label: e.team_number + "",
-                                            showMark: e.team_number == targetTeam,
-                                            id: e.team_number + ""
-                                        }))}
+                                    series={teams.map((e) => ({
+                                        dataKey: e.team_number + "",
+                                        label: e.team_number + "",
+                                        showMark: e.team_number == targetTeam,
+                                        id: e.team_number + ""
+                                    }))}
                                     xAxis={[{ dataKey: "match_number" }]}
                                     yAxis={[{ width: 50 }]}
-                                    hiddenItems={teams
-                                        .filter((e) => e.team_number == targetTeam || showGraph == ShowGraph.All)
+                                    initialHiddenItems={teams
+                                        .filter(
+                                            (e) =>
+                                                !(
+                                                    (showGraph === ShowGraph.Target && e.team_number == targetTeam) ||
+                                                    showGraph === ShowGraph.All
+                                                )
+                                        )
                                         .map((e) => ({
-                                            seriesId: e + "",
+                                            seriesId: e.team_number + "",
                                             type: "line"
                                         }))}
+                                    slotProps={{
+                                        legend: {
+                                            toggleVisibilityOnClick: true
+                                        }
+                                    }}
                                 />
                             </Paper>
                         </Grid>
