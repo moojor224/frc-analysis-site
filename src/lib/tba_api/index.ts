@@ -187,6 +187,9 @@ export class TBAAPI extends EventTarget {
     getTeamEventsByYear(team_key: string, year: string, abort?: AbortController): APIResponse<types.Event[]> {
         return _fetch(BASE_URL + `/team/${team_key}/events/${year}`, this.API_KEY, abort);
     }
+    getTeam(team_key: string, abort?: AbortController): APIResponse<types.Team> {
+        return _fetch(BASE_URL + `/team/${team_key}`, this.API_KEY, abort);
+    }
     getSearchIndex(abort?: AbortController): APIResponse<types.SearchIndex> {
         return _fetch(BASE_URL + "/search_index", this.API_KEY, abort);
     }

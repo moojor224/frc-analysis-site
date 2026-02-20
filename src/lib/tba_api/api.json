@@ -266,7 +266,7 @@
         "path": "/regional_advancement/{year}/rankings"
     },
     "getTeam": {
-        "type": "",
+        "type": "Team",
         "path": "/team/{team_key}"
     },
     "getTeamAwards": {
