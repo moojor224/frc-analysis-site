@@ -6,6 +6,10 @@ export default function FallbackComponent(msg?: string) {
         if (error instanceof Error) {
             message = error.message;
         }
-        return <Alert severity="error">{(msg ?? "") + "\n" + message}</Alert>;
+        return (
+            <Alert sx={{ whiteSpace: "pre" }} severity="error">
+                {(msg ?? "") + "\n" + message}
+            </Alert>
+        );
     };
 }
