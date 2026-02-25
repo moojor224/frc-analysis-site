@@ -244,7 +244,7 @@ export default createAnalyticsPagePipeline(
                                     None
                                 </Button>
                                 <LineChartPro
-                                    height={800}
+                                    height={600}
                                     dataset={matchRPs}
                                     series={teams.map((e) => ({
                                         dataKey: e.team_number + "",
