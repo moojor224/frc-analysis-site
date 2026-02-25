@@ -200,7 +200,7 @@ function Home() {
                             <DBContextProvider dbName={DBNAME} storeName={STORENAME} wait={false}>
                                 {/* don't render site until DB has loaded */}
                                 <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
-                                    <ErrorBoundary FallbackComponent={FallbackComponent}>
+                                    <ErrorBoundary FallbackComponent={FallbackComponent()}>
                                         <TabSelect tab={activeTab} />
                                     </ErrorBoundary>
                                 </Box>

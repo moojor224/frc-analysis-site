@@ -54,7 +54,7 @@ export function createAnalyticsPage<T>(
         return (
             <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
-                    <ErrorBoundary resetKeys={[data]} FallbackComponent={FallbackComponent}>
+                    <ErrorBoundary resetKeys={[data]} FallbackComponent={FallbackComponent("Error during data selection. Close and open this tab to continue")}>
                         <Paper elevation={4} sx={{ padding: 3 }}>
                             <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
                         </Paper>
@@ -62,7 +62,7 @@ export function createAnalyticsPage<T>(
                     {data === null ? (
                         <></>
                     ) : (
-                        <ErrorBoundary FallbackComponent={FallbackComponent}>
+                        <ErrorBoundary FallbackComponent={FallbackComponent("Error during data parsing. Check data input to ensure validity")}>
                             <Paper elevation={4} sx={{ padding: 3, wordWrap: "break-word" }}>
                                 <BodyComponent {...{ api, data }} tabId={`${name}-${0}`} />
                             </Paper>
