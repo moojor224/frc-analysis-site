@@ -154,7 +154,14 @@ function Home() {
                         open={loaded && showSidebar}
                         onClose={() => setShowSidebar(false)}
                     >
-                        <Sidebar {...{ setActiveTab }} />
+                        <Sidebar
+                            {...{
+                                setActiveTab: (tab: Tabs) => {
+                                    setActiveTab(tab);
+                                    setShowSidebar(false);
+                                }
+                            }}
+                        />
                         <Divider />
                         <Box flexGrow={1} />
                         <Divider sx={{ marginBottom: "5px" }} />
