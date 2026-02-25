@@ -7,13 +7,16 @@ import ZoomControls from "@/components/ZoomControls.js";
 import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
 import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
     AppBar,
     Box,
     Divider,
     Drawer,
+    Grid,
     IconButton,
+    Link,
     List,
     ListItem,
     ListItemButton,
@@ -178,6 +181,14 @@ function Home() {
                             </Typography>
                             <TBALogo />
                         </Stack>
+                        <Divider sx={{ margin: "5px 0px" }} />
+                        <Grid container>
+                            <Grid flexGrow={1} fontSize={50}>
+                                <Link href="https://github.com/moojor224/frc-analysis-site" target="_blank" rel="noreferrer">
+                                    <GitHubIcon fontSize="inherit" />
+                                </Link>
+                            </Grid>
+                        </Grid>
                     </Drawer>
                     <Stack sx={{ height: "100%" }}>
                         <Box>
