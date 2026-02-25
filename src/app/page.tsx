@@ -67,7 +67,7 @@ const API_KEY = key.get()!;
 export enum Tabs {
     /** DON'T USE THIS ONE */
     None = "None",
-    Home = "Homepage",
+    Home = "Home",
     Season = "Season Analysis",
     Event = "Event Analysis"
 }
