@@ -1,7 +1,25 @@
 import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
 import { createPipeline, type Input } from "@/app/app_structure/pipeline/index.js";
+import { Match, Match_alliance, Team } from "@/lib/tba_api/types.js";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { Box } from "@mui/material";
+import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { Tabs } from "../page.js";
+
+function getAllianceTeams(alliances: Match_alliance): string[] {
+    const teams: string[] = [];
+    alliances.team_keys;
+    return [];
+}
+
+function getEventTeams(matches: Match[] | null): string[] {
+    if (matches === null) return [];
+    const teams: string[] = [];
+    matches.forEach((m) => {
+        teams.concat(m.alliances.red.team_keys.concat(m.alliances.blue.team_keys));
+    });
+    return [];
+}
 
 export default createAnalyticsPagePipeline(
     Tabs.Season,
@@ -24,37 +42,69 @@ export default createAnalyticsPagePipeline(
             "Get Season"
         )
         .then(([team, year]) => ({ team, year }))
-        .api((api, data) => [api.getTeamDistricts("frc" + data.team), data.year] as const)
-        .then(([districts, year]) => {
+        .api((api, data) => [data.year, data.team, api.getTeamDistricts("frc" + data.team)] as const)
+        .then(([year, team, districts]) => {
             if (!districts) return null;
             districts = districts.filter((e) => e.year == year);
             if (districts.length === 0) return null;
-            return { district: districts[0], year };
+            return { district: districts[0], year, team };
         })
         .messageIfNone("No districts found for team/year", "info")
         // TODO: show district details
         // .show(function ({ data }) {
         //     return <div></div>;
         // })
-        .api((api, data) => [data.year, api.getDistrictEvents(data.district.key)] as const)
-        .then(([year, events]) => {
-            if (!events) return null;
-            if (events.length == 0) return null;
-            return [year, events];
+        .api((api, data) => [data.year, data.team, api.getDistrictRankings(data.district.key)] as const)
+        .then(([year, team, rankings]) => {
+            if (rankings === null) return null;
+            return { year, team, rankings };
         })
-        .messageIfNone("No events found in district (How????)", "info")
+        .messageIfNone("No ranking info found for district", "info")
         .api(
-            (api, [year, events]) =>
-                [
-                    year,
-                    ...events.map((event) => api.getEventMatches(event.key).then((matches) => ({ event, matches })))
-                ] as const
-        ),
-    function Body({ api, data: [year, ...events] }) {
+            (api, data) => [data.year, data.team, data.rankings, ...data.rankings.map((e) => api.getTeam(e.team_key))] as const
+        )
+        .then(([year, team, rankings, ...teams]) => {
+            return { year, team, rankings, teams: teams.filter((e) => e) as Team[] };
+        }),
+    function Body({ api, data }) {
         return (
             <div>
-                <div>not implemented yet :(</div>
-                <div>TBA status: {JSON.stringify(events)}</div>
+                not fully implemented yet...
+                <Box style={{ height: "100vh" }}>
+                    <DataGridPremium
+                        autoHeight={false}
+                        rowHeight={25}
+                        disableRowSelectionOnClick
+                        columns={[
+                            {
+                                field: "team_number",
+                                headerName: "Team #",
+                                flex: 1
+                            },
+                            {
+                                field: "point_total",
+                                headerName: "Points",
+                                flex: 1
+                            },
+                            {
+                                field: "rank",
+                                headerName: "Rank",
+                                flex: 1
+                            }
+                        ]}
+                        rows={data.rankings.map((r) => ({
+                            id: r.team_key,
+                            team_number: data.teams.find((t) => t.key === r.team_key)?.team_number ?? 0,
+                            point_total: r.point_total,
+                            rank: r.rank
+                        }))}
+                        // sortModel={[{ field: "points_total", sort: "desc" }]}
+                        initialState={{ sorting: { sortModel: [{ field: "rank", sort: "asc" }] } }}
+                        getRowClassName={(params) => {
+                            return params.row.team_number == data.team ? "target-team" : "";
+                        }}
+                    />
+                </Box>
             </div>
         );
     }
