@@ -97,7 +97,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                     return (
                         <PersistPrefixKeyContext value={`${analyticsPageTabPrefix}-inputstep${index}`}>
                             {(() => {
-                                console.debug("running step", index, activeStep, step);
+                                // console.debug("running step", index, activeStep, step);
 
                                 function getLastData() {
                                     if (index === 0) return undefined;
