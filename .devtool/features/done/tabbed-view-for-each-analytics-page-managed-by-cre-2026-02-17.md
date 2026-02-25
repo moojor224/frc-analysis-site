@@ -8,6 +8,6 @@ created: "2026-02-18T04:33:28.740Z"
 modified: "2026-02-18T04:33:30.021Z"
 completedAt: "2026-02-18T04:33:30.021Z"
 labels: []
-order: 1
+order: "a1"
 ---
 # tabbed view for each analytics page, managed by createAnalyticsPage

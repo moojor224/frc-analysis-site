@@ -8,6 +8,6 @@ created: "2026-02-18T04:33:15.753Z"
 modified: "2026-02-18T04:33:17.805Z"
 completedAt: "2026-02-18T04:33:17.805Z"
 labels: []
-order: 0
+order: "a0"
 ---
 # createAnalyticsPage<DataType>(PickerComponent, BodyComponent)

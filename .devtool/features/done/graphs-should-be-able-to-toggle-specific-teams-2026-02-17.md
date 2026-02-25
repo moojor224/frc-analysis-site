@@ -8,6 +8,6 @@ created: "2026-02-18T05:51:23.683Z"
 modified: "2026-02-18T05:51:23.683Z"
 completedAt: "2026-02-18T05:51:23.683Z"
 labels: []
-order: 6
+order: "a6"
 ---
 # graphs should be able to toggle specific teams

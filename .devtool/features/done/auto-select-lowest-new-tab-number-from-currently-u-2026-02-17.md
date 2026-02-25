@@ -1,14 +1,14 @@
 ---
 id: "auto-select-lowest-new-tab-number-from-currently-u-2026-02-17"
-status: "in-progress"
+status: "done"
 priority: "high"
 assignee: null
 dueDate: null
 created: "2026-02-18T04:52:40.841Z"
-modified: "2026-02-18T05:44:45.736Z"
-completedAt: null
+modified: "2026-02-25T18:20:42.116Z"
+completedAt: "2026-02-25T18:20:42.116Z"
 labels: []
-order: 0
+order: "a8"
 ---
 # auto-select lowest new tab number from currently used ids
 
