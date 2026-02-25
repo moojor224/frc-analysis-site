@@ -2,6 +2,7 @@ import ClearData from "@/components/ClearData.js";
 import FallbackComponent from "@/components/FallbackComponent.js";
 import MuiXLicense from "@/components/MuiXLicense.js";
 import PWA from "@/components/PWA.js";
+import Reload from "@/components/Reload.js";
 import ZoomControls from "@/components/ZoomControls.js";
 import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
 import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
@@ -195,6 +196,7 @@ function Home() {
                                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                                         {activeTab}
                                     </Typography>
+                                    <Reload />
                                     {/* TODO: api key button? */}
                                     {/* <Button color="inherit">API Key</Button> */}
                                     <PWA />
