@@ -1,6 +1,7 @@
 import { PersistPrefixKeyContext } from "@/app/page.js";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
 import { Button, Divider, FormControl, FormHelperText, Grid } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 import type { Input, Step } from "../index.js";
 import NumberPipelineStep from "./inputs/Number.js";
 import SelectPipelineStep from "./inputs/Select.js";
@@ -24,7 +25,8 @@ export default function InputStepComponent({
         }
         return [];
     }, [step]);
-    const [values, setValues] = useState<any[]>(
+    const [values, setValues] = useDBPersistentValue<any[]>(
+        analyticsPageTabInputstepPrefix + "-values",
         inputs.map((e) => {
             // initialize array of inputs with raw inputs pre-filled
             if (e.type === "raw") return e.data;

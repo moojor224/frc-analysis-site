@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { PersistPrefixKeyContext } from "@/app/page.js";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { useContext } from "react";
 
 type Input<T> = {
     readonly has: boolean;
@@ -10,10 +12,11 @@ type Input<T> = {
 };
 
 export function useInput<T>() {
-    const [value, setValue] = useState<T | undefined>(undefined);
-    const [has, setHas] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [hasError, setHasError] = useState(false);
+    const prefix = useContext(PersistPrefixKeyContext);
+    const [value, setValue] = useDBPersistentValue<T | undefined>(prefix + "-value", undefined);
+    const [has, setHas] = useDBPersistentValue(prefix + "-has", false);
+    const [errorMessage, setErrorMessage] = useDBPersistentValue(prefix + "-errorMessage", "");
+    const [hasError, setHasError] = useDBPersistentValue(prefix + "-hasError", false);
     const input = {
         has,
         value,

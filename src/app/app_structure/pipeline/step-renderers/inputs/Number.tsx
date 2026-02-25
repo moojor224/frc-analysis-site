@@ -30,6 +30,7 @@ const NumberPipelineStep: InputPipelineStep<
             onChange={value.onChange}
             size="small"
             margin="none"
+            value={value.value}
         />
     );
 };
