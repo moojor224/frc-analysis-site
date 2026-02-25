@@ -1,6 +1,7 @@
 import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
 import { createPipeline, Input, SelectInput } from "@/app/app_structure/pipeline/index.js";
 import EventDetails from "@/components/EventDetails.js";
+import GraphTitle from "@/components/GraphTitle.js";
 import { Event, Match } from "@/lib/tba_api/types.js";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box, Button, Grid, Paper, Stack } from "@mui/material";
@@ -232,6 +233,7 @@ export default createAnalyticsPagePipeline(
                     <Grid container columns={{ xs: 4, sm: 8, md: 12 }} spacing={4}>
                         <Grid hidden={rollRows.length == 0} size={12}>
                             <Paper elevation={6}>
+                                <GraphTitle text="Ranking Points by Match" />
                                 <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.All)}>
                                     All
                                 </Button>
@@ -275,6 +277,7 @@ export default createAnalyticsPagePipeline(
                         </Grid>
                         <Grid hidden={penalties.length == 0} size={12} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
+                                <GraphTitle text="Penalty Points Differential" />
                                 <BarChartPremium
                                     height={600}
                                     dataset={penalties
@@ -301,6 +304,7 @@ export default createAnalyticsPagePipeline(
                         </Grid>
                         <Grid hidden={penalties.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
+                                <GraphTitle text="Penalty Points Breakdown" />
                                 <DataGridPremium
                                     rowHeight={25}
                                     columns={[
@@ -333,6 +337,7 @@ export default createAnalyticsPagePipeline(
                         </Grid>
                         <Grid hidden={rollRows.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
+                                <GraphTitle text="Ranking Points" />
                                 <DataGridPremium
                                     rowHeight={25}
                                     columns={[
@@ -349,6 +354,7 @@ export default createAnalyticsPagePipeline(
                         </Grid>
                         <Grid size={{ xs: 4, sm: 8, md: 12 }} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
+                                <GraphTitle text={targetTeam + " Match Breakdown"} />
                                 <DataGridPremium
                                     rowHeight={25}
                                     columns={[

@@ -1,5 +1,6 @@
 import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
 import { createPipeline, type Input } from "@/app/app_structure/pipeline/index.js";
+import GraphTitle from "@/components/GraphTitle.js";
 import { Match, Match_alliance, Team } from "@/lib/tba_api/types.js";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Box } from "@mui/material";
@@ -71,6 +72,7 @@ export default createAnalyticsPagePipeline(
             <div>
                 not fully implemented yet...
                 <Box style={{ height: "100vh" }}>
+                    <GraphTitle text="District Points Ranking" />
                     <DataGridPremium
                         autoHeight={false}
                         rowHeight={25}
