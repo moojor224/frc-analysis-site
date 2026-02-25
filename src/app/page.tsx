@@ -165,11 +165,11 @@ function Home() {
                         />
                         <Divider />
                         <Box flexGrow={1} />
-                        <Divider sx={{ marginBottom: "5px" }} />
+                        <Divider sx={{ margin: "5px 0px" }} />
                         <DBContextProvider dbName={DBNAME} storeName={STORENAME}>
                             <ClearData />
                         </DBContextProvider>
-                        <Divider sx={{ marginBottom: "5px" }} />
+                        <Divider sx={{ margin: "5px 0px" }} />
                         <ZoomControls />
                         <Divider sx={{ marginTop: "10px" }} />
                         <Stack alignItems="center">
