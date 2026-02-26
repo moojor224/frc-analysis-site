@@ -122,7 +122,7 @@
         "path": "/event/{event_key}/matches/timeseries"
     },
     "getEventOPRs": {
-        "type": "Event_OPRS",
+        "type": "Event_OPRs",
         "path": "/event/{event_key}/oprs"
     },
     "getEventPredictions": {

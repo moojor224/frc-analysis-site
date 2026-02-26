@@ -160,7 +160,7 @@ export class TBAAPI extends EventTarget {
     getEventMatchTimeseries(event_key: string, abort?: AbortController): APIResponse<string[]> {
         return _fetch(BASE_URL + `/event/${event_key}/matches/timeseries`, this.API_KEY, abort);
     }
-    getEventOPRs(event_key: string, abort?: AbortController): APIResponse<types.Event_OPRS> {
+    getEventOPRs(event_key: string, abort?: AbortController): APIResponse<types.Event_OPRs> {
         return _fetch(BASE_URL + `/event/${event_key}/oprs`, this.API_KEY, abort);
     }
     getEventPredictions(event_key: string, abort?: AbortController): APIResponse<types.Event_Predictions> {
