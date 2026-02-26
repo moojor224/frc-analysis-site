@@ -1,8 +1,8 @@
-import { PersistPrefixKeyContext, Tabs } from "@/app/page.js";
+import { ApiContext, PersistPrefixKeyContext, Tabs } from "@/app/page.js";
 import FallbackComponent from "@/components/FallbackComponent.js";
-import { ApiContext, TBAAPI } from "@/lib/tba_api/index.js";
 import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
 import { localstorageAdapter, useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
+import { TBAAPI } from "@moojor224/tba-api";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -54,7 +54,12 @@ export function createAnalyticsPage<T>(
         return (
             <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
-                    <ErrorBoundary resetKeys={[data]} FallbackComponent={FallbackComponent("Error during data selection. Close and open this tab to continue")}>
+                    <ErrorBoundary
+                        resetKeys={[data]}
+                        FallbackComponent={FallbackComponent(
+                            "Error during data selection. Close and open this tab to continue"
+                        )}
+                    >
                         <Paper elevation={4} sx={{ padding: 3 }}>
                             <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
                         </Paper>
@@ -62,7 +67,11 @@ export function createAnalyticsPage<T>(
                     {data === null ? (
                         <></>
                     ) : (
-                        <ErrorBoundary FallbackComponent={FallbackComponent("Error during data parsing. Check data input to ensure validity")}>
+                        <ErrorBoundary
+                            FallbackComponent={FallbackComponent(
+                                "Error during data parsing. Check data input to ensure validity"
+                            )}
+                        >
                             <Paper elevation={4} sx={{ padding: 3, wordWrap: "break-word" }}>
                                 <BodyComponent {...{ api, data }} tabId={`${name}-${0}`} />
                             </Paper>

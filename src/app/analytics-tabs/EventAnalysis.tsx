@@ -2,7 +2,7 @@ import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalytics
 import { createPipeline, Input, SelectInput } from "@/app/app_structure/pipeline/index.js";
 import EventDetails from "@/components/EventDetails.js";
 import GraphTitle from "@/components/GraphTitle.js";
-import { Event, Match } from "@/lib/tba_api/types.js";
+import { Event, Match } from "@moojor224/tba-api";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box, Button, Grid, Paper, Stack } from "@mui/material";
 import { BarChartPremium, LineChartPro } from "@mui/x-charts-premium";
@@ -21,6 +21,7 @@ function getTeamRP(teamKey: string, match: Match, year: number) {
         alliance = "red";
     }
     // TODO: check year
+    // @ts-ignore
     return (match.score_breakdown[alliance]?.rp as number) ?? 0;
 }
 
@@ -145,8 +146,10 @@ export default createAnalyticsPagePipeline(
                 if (!m.score_breakdown || m.comp_level !== "qm") {
                     return;
                 }
-                const blueBad = m.score_breakdown.red.foulPoints;
-                const redBad = m.score_breakdown.blue.foulPoints;
+                // @ts-ignore
+                const blueBad = m.score_breakdown.red.foulPoints ?? 0;
+                // @ts-ignore
+                const redBad = m.score_breakdown.blue.foulPoints ?? 0;
                 const { red, blue } = m.alliances;
                 const redAlliance = red.team_keys.filter((e) => !red.dq_team_keys.includes(e)).concat(red.surrogate_team_keys);
                 const blueAlliance = blue.team_keys
@@ -186,12 +189,16 @@ export default createAnalyticsPagePipeline(
                     let theyPen = 0;
                     let score = 0;
                     if (isRed) {
+                        // @ts-ignore
                         myPen = m.score_breakdown?.blue?.foulPoints ?? 0;
+                        // @ts-ignore
                         theyPen = m.score_breakdown?.red?.foulPoints ?? 0;
                         score = red.score;
                     }
                     if (isBlue) {
+                        // @ts-ignore
                         myPen = m.score_breakdown?.red?.foulPoints ?? 0;
+                        // @ts-ignore
                         theyPen = m.score_breakdown?.blue?.foulPoints ?? 0;
                         score = blue.score;
                     }

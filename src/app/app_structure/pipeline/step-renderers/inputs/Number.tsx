@@ -1,5 +1,6 @@
 import { useNumberInput } from "@/app/app_structure/analytics_page/useNumberInput.js";
-import { ApiContext, TBAAPI } from "@/lib/tba_api/index.js";
+import { ApiContext } from "@/app/page.js";
+import { TBAAPI } from "@moojor224/tba-api";
 import { TextField } from "@mui/material";
 import { useContext, useEffect } from "react";
 import { InputPipelineStep } from "../../PipelineRenderer.js";

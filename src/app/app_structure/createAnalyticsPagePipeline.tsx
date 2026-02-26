@@ -1,5 +1,5 @@
+import { TBAAPI } from "@moojor224/tba-api";
 import React from "react";
-import { TBAAPI } from "../../lib/tba_api/index.js";
 import { Tabs } from "../page.js";
 import { createAnalyticsPage } from "./createAnalyticsPage.js";
 import { Pipeline } from "./pipeline/index.js";

@@ -7,6 +7,8 @@ import ZoomControls from "@/components/ZoomControls.js";
 import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
 import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
+import type { API_Status, SearchIndex } from "@moojor224/tba-api";
+import { TBAAPI } from "@moojor224/tba-api";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -33,9 +35,39 @@ import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import "react-tabs/style/react-tabs.css";
 import { TBALogo } from "../components/tba_lamp.js";
-import { ApiContext, TBAAPI } from "../lib/tba_api/index.js";
 import { analyticsPages } from "./analytics-tabs/index.js";
 import "./styles.css";
+
+const fakeAPI = new Proxy<TBAAPI>({} as any, {
+    get(_t, key: string) {
+        if (key === "API_KEY") return "";
+        if (key === "status")
+            return {
+                android: {
+                    latest_app_version: 0,
+                    min_app_version: 0
+                },
+                current_season: 0,
+                down_events: [],
+                ios: {
+                    latest_app_version: 0,
+                    min_app_version: 0
+                },
+                is_datafeed_down: true,
+                max_season: 0,
+                max_team_page: 0
+            } satisfies API_Status;
+        if (key === "searchIndex")
+            return {
+                teams: [],
+                events: []
+            } satisfies SearchIndex;
+        return async function () {
+            return null;
+        };
+    }
+});
+export const ApiContext = createContext(fakeAPI);
 
 const darkTheme = createTheme({
     palette: {

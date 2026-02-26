@@ -1,7 +1,7 @@
 import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
 import { createPipeline, type Input } from "@/app/app_structure/pipeline/index.js";
 import GraphTitle from "@/components/GraphTitle.js";
-import { Match, Match_alliance, Team } from "@/lib/tba_api/types.js";
+import { Match, Match_alliance, Team } from "@moojor224/tba-api";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Box } from "@mui/material";
 import { DataGridPremium } from "@mui/x-data-grid-premium";

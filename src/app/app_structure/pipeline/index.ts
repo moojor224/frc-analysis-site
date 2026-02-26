@@ -1,4 +1,4 @@
-import { TBAAPI } from "@/lib/tba_api/index.js";
+import { TBAAPI } from "@moojor224/tba-api";
 
 type Narrow<T> = (T extends infer U ? U : never) | Extract<T, any> | ([T] extends [[]] ? [] : { [K in keyof T]: Narrow<T[K]> });
 
