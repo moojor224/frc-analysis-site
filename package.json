@@ -24,6 +24,7 @@
     },
     "scripts": {
         "pack": "webpack && node ./build.js",
+        "check": "tsup",
         "build": "tsup && pnpm run pack",
         "watch": "tsup --watch --onSuccess \"pnpm run pack\""
     },
