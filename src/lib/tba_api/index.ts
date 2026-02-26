@@ -55,8 +55,38 @@ async function _fetch<T>(url: string, API_KEY: string, abort?: AbortController):
     return null; // unknown status code
 }
 
+const fakeAPI = new Proxy<TBAAPI>({} as any, {
+    get(_t, key: string) {
+        if (key === "API_KEY") return "";
+        if (key === "status")
+            return {
+                android: {
+                    latest_app_version: 0,
+                    min_app_version: 0
+                },
+                current_season: 0,
+                down_events: [],
+                ios: {
+                    latest_app_version: 0,
+                    min_app_version: 0
+                },
+                is_datafeed_down: true,
+                max_season: 0,
+                max_team_page: 0
+            } satisfies types.API_Status;
+        if (key === "searchIndex")
+            return {
+                teams: [],
+                events: []
+            } satisfies types.SearchIndex;
+        return async function () {
+            return null;
+        };
+    }
+});
+
 type APIResponse<T> = Promise<T | null>;
-export const ApiContext = createContext<TBAAPI>(null as unknown as TBAAPI);
+export const ApiContext = createContext<TBAAPI>(fakeAPI);
 
 export class TBAAPI extends EventTarget {
     API_KEY: string;
