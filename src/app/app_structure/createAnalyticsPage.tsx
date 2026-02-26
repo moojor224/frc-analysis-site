@@ -1,7 +1,6 @@
 import { ApiContext, PersistPrefixKeyContext, Tabs } from "@/app/page.js";
 import FallbackComponent from "@/components/FallbackComponent.js";
 import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
-import { localstorageAdapter, useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { TBAAPI } from "@moojor224/tba-api";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -23,13 +22,10 @@ import { useInstanceManager } from "./analytics_page/useInstanceManager.js";
 type PickerComponent<T> = React.FunctionComponent<{
     api: TBAAPI;
     setData: (data: T) => void;
-    /** tab number. use this to prefix keys used to cache data in localStorage */
-    tabId: string;
 }>;
 type BodyComponent<T> = React.FunctionComponent<{
     api: TBAAPI;
     data: T;
-    tabId: string;
 }>;
 
 function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
@@ -61,7 +57,7 @@ export function createAnalyticsPage<T>(
                         )}
                     >
                         <Paper elevation={4} sx={{ padding: 3 }}>
-                            <PickerComponent {...{ api, setData }} tabId={`${name}-${0}`} />
+                            <PickerComponent {...{ api, setData }} />
                         </Paper>
                     </ErrorBoundary>
                     {data === null ? (
@@ -73,7 +69,7 @@ export function createAnalyticsPage<T>(
                             )}
                         >
                             <Paper elevation={4} sx={{ padding: 3, wordWrap: "break-word" }}>
-                                <BodyComponent {...{ api, data }} tabId={`${name}-${0}`} />
+                                <BodyComponent {...{ api, data }} />
                             </Paper>
                         </ErrorBoundary>
                     )}
@@ -84,13 +80,13 @@ export function createAnalyticsPage<T>(
     function Component() {
         const IDB = useContext(DBContext);
         const analyticsPageId = useContext(PersistPrefixKeyContext);
-        const [activeTab, setActiveTab] = useLSPersistentValue(`${analyticsPageId}-activetab`, 0);
-        const [tabNums, setTabNums] = useLSPersistentValue<number[]>(`${analyticsPageId}-tabnumsarr`, []);
-        const [tabNameMap, setTabNameMap] = useLSPersistentValue<Record<string | number, string>>(
+        const [activeTab, setActiveTab] = useDBPersistentValue(`${analyticsPageId}-activetab`, 0);
+        const [tabNums, setTabNums] = useDBPersistentValue<number[]>(`${analyticsPageId}-tabnumsarr`, []);
+        const [tabNameMap, setTabNameMap] = useDBPersistentValue<Record<string | number, string>>(
             `${analyticsPageId}-tabnamemap`,
             {}
         );
-        const manager = useInstanceManager<{}>(Instance, () => ({}), tabNums);
+        const manager = useInstanceManager(Instance, tabNums);
         if (manager.instances.length < 1) {
             addInstance();
         }
@@ -104,9 +100,8 @@ export function createAnalyticsPage<T>(
             setActiveTab(manager.instances.indexOf(manager.instances.find((e) => e)));
             delete tabNums[activeTab];
             setTabNums(Array.from(tabNums.filter((e) => typeof e == "number")));
-            const prefix = analyticsPageId + "-" + activeTab;
+            const prefix = analyticsPageId + "-" + instance.id;
             IDB.clear(prefix);
-            localstorageAdapter.clear(prefix);
         }
         const selectedInstance = manager.instances[activeTab];
         if (!selectedInstance && manager.instances.length > 0) {
@@ -116,7 +111,7 @@ export function createAnalyticsPage<T>(
             }
         }
         function addInstance() {
-            const id = manager.addInstance({}).id;
+            const id = manager.addInstance().id;
             const newTabs = tabNums.concat(id);
             // console.log("add instance", manager.instances, newTabs);
             setTabNums(newTabs);
@@ -172,7 +167,7 @@ export function createAnalyticsPage<T>(
                                     }}
                                     key={i}
                                     value={i}
-                                    label={tabNameMap[e.element.props.id]?.trim() || `Tab ${e.element.props.id + 1}`}
+                                    label={tabNameMap[e.id]?.trim() || `Tab ${e.id + 1}`}
                                 />
                             ) : null
                         )}
@@ -196,7 +191,7 @@ export function createAnalyticsPage<T>(
                 <Box className="hide-scrollbar" sx={{ position: "relative", overflowY: "auto" }}>
                     {manager.instances.map((e, i) =>
                         e ? (
-                            <PersistPrefixKeyContext key={i} value={analyticsPageId + "-" + i}>
+                            <PersistPrefixKeyContext key={i} value={analyticsPageId + "-" + e.id}>
                                 <div
                                     style={{
                                         transform: i != activeTab ? "translateX(-200vw)" : "translateX(0)",

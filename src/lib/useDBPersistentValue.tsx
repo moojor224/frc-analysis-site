@@ -91,6 +91,7 @@ function useDBCache(db: IDBDatabase | null, storeName: string) {
 }
 
 type DBAdapter = {
+    workSize: number;
     ready: boolean;
     error: boolean;
     getValue<T>(key: string): T;
@@ -103,32 +104,42 @@ type DBAdapter = {
 function useDBCacheAdapter(dbName: string, storeName: string): DBAdapter {
     const database = useIndexedDB(dbName, storeName, 1);
     const cache = useDBCache(database.database, storeName);
+    const [workSize, setWorkSize] = useState(0);
     return {
+        workSize,
         ready: database.ready && cache.initialized,
         error: database.error || !!cache.error,
         getValue<T>(key: string): T {
             return cache.cache[key];
         },
         setValue(key: string, value: any) {
+            setWorkSize((e) => e + 1);
             cache.cache[key] = value;
             localCache[key] = value;
             const tr = database.database!.transaction(storeName, "readwrite");
             const store = tr.objectStore(storeName);
             const setReq = store.put(value, key);
-            setReq.onsuccess = function () {};
+            setReq.onsuccess = function () {
+                setWorkSize((e) => e - 1);
+            };
             setReq.onerror = function () {
                 console.error(setReq.error);
+                setWorkSize((e) => e - 1);
             };
         },
         deleteValue(key: string) {
+            setWorkSize((e) => e + 1);
             delete cache.cache[key];
             delete localCache[key];
             const tr = database.database!.transaction(storeName, "readwrite");
             const store = tr.objectStore(storeName);
             const delReq = store.delete(key);
-            delReq.onsuccess = function () {};
+            delReq.onsuccess = function () {
+                setWorkSize((e) => e - 1);
+            };
             delReq.onerror = function () {
                 console.error(delReq.error);
+                setWorkSize((e) => e - 1);
             };
         },
         clear(prefix: string) {
@@ -143,6 +154,7 @@ function useDBCacheAdapter(dbName: string, storeName: string): DBAdapter {
 
 const localCache: Record<string, any> = {};
 const localAdapter = {
+    workSize: 0,
     ready: true,
     error: false,
     getValue<T>(key: string): T {

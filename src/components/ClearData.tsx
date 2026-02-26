@@ -1,21 +1,27 @@
 import { DBContext } from "@/lib/useDBPersistentValue.js";
-import { localstorageAdapter } from "@/lib/useLSPersistentValue.js";
 import { Button } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 export default function ClearData() {
     const db = useContext(DBContext);
+    const [reload, setReload] = useState(false);
+    if (reload) {
+        if (db.workSize == 0) {
+            location.reload();
+        } else {
+            console.log("waiting", db.workSize);
+        }
+    }
     return (
         <Button
             onClick={function () {
                 if (!confirm("This will delete all app data including the API key. Are you sure?")) return;
                 const apiKey = localStorage.getItem("persist-API_KEY");
                 db.clear("");
-                localstorageAdapter.clear("");
                 if (confirm("Do you want to keep the API key?")) {
                     localStorage.setItem("persist-API_KEY", apiKey ?? "");
                 }
-                location.reload();
+                setReload(true);
             }}
             sx={{ textTransform: "none" }}
         >

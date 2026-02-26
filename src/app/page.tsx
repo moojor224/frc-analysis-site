@@ -158,7 +158,7 @@ function Home() {
     const [loaded, setLoaded] = useState(false);
     const [loadMessage, setLoadMessage] = useState("Waiting for TheBlueAlliance API");
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeTab, setActiveTab] = useLSPersistentValue("activepage", Tabs.Event);
+    const [activeTab, setActiveTab] = useLSPersistentValue("frc-analysis-activepage", Tabs.Event);
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);

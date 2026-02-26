@@ -15,7 +15,6 @@ export function createAnalyticsPagePipeline<T>(
     BodyComponent: React.FunctionComponent<{
         api: TBAAPI;
         data: T;
-        tabId: string;
     }>
 ) {
     return createAnalyticsPage(

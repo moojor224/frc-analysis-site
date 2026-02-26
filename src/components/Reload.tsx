@@ -1,8 +1,19 @@
+import { DBContext } from "@/lib/useDBPersistentValue.js";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Button } from "@mui/material";
+import { useContext, useState } from "react";
 export default function Reload() {
+    const db = useContext(DBContext);
+    const [reload, setReload] = useState(false);
+    if (reload) {
+        if (db.workSize == 0) {
+            location.reload();
+        } else {
+            console.log("waiting", db.workSize);
+        }
+    }
     return (
-        <Button onClick={() => location.reload()}>
+        <Button onClick={() => setReload(true)}>
             <RefreshIcon />
         </Button>
     );

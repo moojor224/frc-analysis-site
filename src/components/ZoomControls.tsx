@@ -1,10 +1,8 @@
-import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
-import { persistValue } from "@moojor224/persistent-value";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
 import { Box, Button, Grid, Stack } from "@mui/material";
-import { useState } from "react";
 
 export default function ZoomControls() {
-    const [zoom, setZoom] = useLSPersistentValue("pagezoom", 1);
+    const [zoom, setZoom] = useDBPersistentValue("pagezoom", 1);
     document.body.style.setProperty("--zoom", String(zoom));
     return (
         <Box>
