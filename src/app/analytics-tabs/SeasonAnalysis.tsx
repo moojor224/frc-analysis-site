@@ -71,8 +71,8 @@ export default createAnalyticsPagePipeline(
         return (
             <div>
                 not fully implemented yet...
+                <GraphTitle text="District Points Ranking" />
                 <Box style={{ height: "100vh" }}>
-                    <GraphTitle text="District Points Ranking" />
                     <DataGridPremium
                         autoHeight={false}
                         rowHeight={25}
