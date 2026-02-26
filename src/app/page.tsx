@@ -16,9 +16,7 @@ import {
     Box,
     Divider,
     Drawer,
-    Grid,
     IconButton,
-    Link,
     List,
     ListItem,
     ListItemButton,
@@ -214,13 +212,11 @@ function Home() {
                             <TBALogo />
                         </Stack>
                         <Divider sx={{ margin: "5px 0px" }} />
-                        <Grid container>
-                            <Grid flexGrow={1} fontSize={50}>
-                                <Link href="https://github.com/moojor224/frc-analysis-site" target="_blank" rel="noreferrer">
-                                    <GitHubIcon fontSize="inherit" />
-                                </Link>
-                            </Grid>
-                        </Grid>
+                        <Box display="flex" alignItems="center" justifyContent="center" marginBottom="5px">
+                            <IconButton href="https://github.com/moojor224/frc-analysis-site" target="_blank" rel="noreferrer">
+                                <GitHubIcon fontSize="inherit" />
+                            </IconButton>
+                        </Box>
                     </Drawer>
                     <Stack sx={{ height: "100%" }}>
                         <Box>
