@@ -152,7 +152,7 @@ const DBNAME = "FrcAnalysis";
 const STORENAME = "AppState";
 export const PersistPrefixKeyContext = createContext("");
 
-function Home() {
+function App() {
     const [loaded, setLoaded] = useState(false);
     const [loadMessage, setLoadMessage] = useState("Waiting for TheBlueAlliance API");
     const [showSidebar, setShowSidebar] = useState(false);
@@ -267,7 +267,7 @@ function Home() {
     );
 }
 
-ReactDOM.createRoot(document.querySelector("#root")!).render(React.createElement(Home));
+ReactDOM.createRoot(document.querySelector("#root")!).render(React.createElement(App));
 
 function other() {
     const MIN_YEAR = 1992; // oldest year on TBA website
