@@ -8,7 +8,7 @@ import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
 import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
 import { persistValue } from "@moojor224/persistent-value";
 import type { API_Status, SearchIndex } from "@moojor224/tba-api";
-import { TBAAPI } from "@moojor224/tba-api";
+import { setRateLimit, TBAAPI } from "@moojor224/tba-api";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -146,7 +146,6 @@ function SidebarItem<T>({ text, icon, onClick }: { text: T; icon: React.ReactNod
         </ListItem>
     );
 }
-("#1565c0"); // primary dark
 
 const DBNAME = "FrcAnalysis";
 const STORENAME = "AppState";
@@ -160,6 +159,7 @@ function App() {
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);
+        setRateLimit(10);
         if (!key.has()) {
             return api;
         }
@@ -180,9 +180,9 @@ function App() {
             </div>
             <ThemeProvider theme={darkTheme}>
                 <MuiXLicense />
+                <CssBaseline />
                 {/* provide api to all children */}
                 <ApiContext value={api}>
-                    <CssBaseline />
                     <Drawer
                         sx={{ zoom: "calc(1 / var(--zoom))" }}
                         open={loaded && showSidebar}
@@ -268,23 +268,3 @@ function App() {
 }
 
 ReactDOM.createRoot(document.querySelector("#root")!).render(React.createElement(App));
-
-function other() {
-    const MIN_YEAR = 1992; // oldest year on TBA website
-    const [MAX_YEAR, setMaxYear] = useState(MIN_YEAR); // max year
-    const arr = useMemo(
-        () =>
-            new Array(MAX_YEAR - MIN_YEAR + 1)
-                .fill(0)
-                .map((e, i) => i + MIN_YEAR)
-                .reverse(),
-        [MAX_YEAR]
-    );
-    <select>
-        {arr.map((e, i) => (
-            <option key={i} value={e}>
-                {e}
-            </option>
-        ))}
-    </select>;
-}
