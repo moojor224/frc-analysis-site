@@ -32,7 +32,7 @@ export const localstorageAdapter = {
                 JSON.parse(val);
                 return true;
             }
-        } catch (e) {
+        } catch {
             console.warn("hasItem: stored value is invalid: ", key, val);
         }
         return false;
@@ -44,7 +44,7 @@ export const localstorageAdapter = {
         }
         try {
             return JSON.parse(value);
-        } catch (e) {
+        } catch {
             console.warn("getItem: stored value is invalid: ", key, value);
             return null;
         }

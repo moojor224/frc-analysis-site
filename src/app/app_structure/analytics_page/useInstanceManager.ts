@@ -1,5 +1,4 @@
-import { PersistPrefixKeyContext } from "@/app/page.js";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Instance = {
     element: React.ReactElement;
@@ -16,7 +15,6 @@ export function useInstanceManager(
     Component: React.FunctionComponent<{ id: number; manager: InstanceManager }>,
     startingTabs: number[] = []
 ) {
-    console.log("useInstanceManager", startingTabs, useContext(PersistPrefixKeyContext));
     const [, setInstances] = useState([] as typeof manager.instances);
     const manager: InstanceManager = useMemo(() => {
         const manager = {
@@ -49,9 +47,7 @@ export function useInstanceManager(
             }
         };
         startingTabs.forEach((id) => {
-            // console.log("checking existing id", id);
             if (typeof id == "number") {
-                // console.log("add instance with props: ", props);
                 manager.addInstance(id);
             }
         });

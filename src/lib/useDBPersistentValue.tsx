@@ -23,11 +23,9 @@ function useIndexedDB(dbName: string, storeName: string, version: number): DB {
         request.onupgradeneeded = function () {
             // if successfully opened
             request.result.createObjectStore(storeName); // create app's object store
-            console.info("successfully created IDB and object store");
         };
         request.onsuccess = function () {
             setDB(request.result);
-            console.info("successfully connected to db");
         };
         request.onerror = function () {
             setError(true);

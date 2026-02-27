@@ -46,7 +46,6 @@ export function createAnalyticsPage<T>(
         const analyticsPagePrefix = useContext(PersistPrefixKeyContext);
         const api = useContext(ApiContext);
         const [data, setData] = useDBPersistentValue<T | null>(`${analyticsPagePrefix}-data`, null);
-        // console.log({ data });
         return (
             <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
@@ -91,7 +90,6 @@ export function createAnalyticsPage<T>(
             addInstance();
         }
         function closeTab() {
-            console.info("closing tab", activeTab);
             const instance = manager.instances[activeTab];
             if (!instance) return;
             delete tabNameMap[instance.id];
@@ -113,7 +111,6 @@ export function createAnalyticsPage<T>(
         function addInstance() {
             const id = manager.addInstance().id;
             const newTabs = tabNums.concat(id);
-            // console.log("add instance", manager.instances, newTabs);
             setTabNums(newTabs);
         }
         if (activeTab === -1) {

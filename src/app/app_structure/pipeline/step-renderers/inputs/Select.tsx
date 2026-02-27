@@ -15,7 +15,6 @@ const SelectPipelineStep: InputPipelineStep<string, { input: SelectInput<any> }>
     const value = useInput<string>();
     useEffect(() => {
         if (value.has && !value.hasError) {
-            // console.debug("setting select value", value.value);
             setValue(value.value!);
         }
     }, [value.value]);

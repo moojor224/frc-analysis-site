@@ -5,12 +5,8 @@ import { useContext, useState } from "react";
 export default function Reload() {
     const db = useContext(DBContext);
     const [reload, setReload] = useState(false);
-    if (reload) {
-        if (db.workSize == 0) {
-            location.reload();
-        } else {
-            console.log("waiting", db.workSize);
-        }
+    if (reload && db.workSize == 0) {
+        location.reload();
     }
     return (
         <Button onClick={() => setReload(true)}>

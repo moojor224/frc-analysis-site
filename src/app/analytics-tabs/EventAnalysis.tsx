@@ -68,7 +68,6 @@ export default createAnalyticsPagePipeline(
         )
         .then(([data]) => {
             const events = data.events;
-            console.log(events);
             if (!events) return events;
             return events.length === 0 ? null : { events, data: data.data };
         })
@@ -122,9 +121,6 @@ export default createAnalyticsPagePipeline(
                     const rp = getTeamRP(t.key, m, data.data.year);
                     const rol = (roll[t.team_number + ""] ?? 0) + rp;
                     roll[t.team_number + ""] = rol;
-                    // if (t.team_number == 118) {
-                    //     console.log(rol);
-                    // }
                     return {
                         match_number: m.match_number,
                         rp: rol

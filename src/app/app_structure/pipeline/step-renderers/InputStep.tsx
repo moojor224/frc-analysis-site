@@ -89,7 +89,6 @@ export default function InputStepComponent({
                         variant="outlined"
                         onClick={() => {
                             if (hasInputs) {
-                                // console.debug("submitting", values);
                                 onSubmit(values);
                             } else {
                                 console.warn("not all data is selected");

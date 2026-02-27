@@ -82,7 +82,6 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
     useEffect(() => {
         if (activeStep >= steps.length) {
             // all steps processed
-            console.info("all steps processed. setting output");
             setOutput(values[values.length - 1]);
         }
     }, [activeStep, values]);
@@ -96,8 +95,6 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                     return (
                         <PersistPrefixKeyContext value={`${analyticsPageTabPrefix}-inputstep${index}`}>
                             {(() => {
-                                // console.debug("running step", index, activeStep, step);
-
                                 function getLastData() {
                                     if (index === 0) return undefined;
                                     return values[index - 1];
@@ -110,7 +107,6 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                                 step={step}
                                                 prevData={getLastData()}
                                                 onSubmit={(value) => {
-                                                    console.debug("submitting values from input");
                                                     values[index] = value;
                                                     setValues(Array.from(values));
                                                     setActiveStep(index + 1);
@@ -180,7 +176,6 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                                 }
                                             )
                                                 .then((newData: any) => {
-                                                    console.debug("api call done");
                                                     values[index] = newData;
                                                     setValues(Array.from(values));
                                                     setActiveStep(index + 1);
@@ -189,10 +184,8 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                                                 .catch((e) => {
                                                     console.error("error in api call:", e);
                                                     if (e instanceof Error) {
-                                                        console.debug("seting raw error");
                                                         setApiError(e);
                                                     } else {
-                                                        console.debug("seting parsed error");
                                                         setApiError(new Error(e));
                                                     }
                                                     // values[index - 1 < 0 ? 0 : index - 1] = null;
