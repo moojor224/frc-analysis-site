@@ -108,12 +108,11 @@ export enum Tabs {
 function TabSelect({ tab }: { tab: Tabs }) {
     return (
         <>
-            <PersistPrefixKeyContext value={Tabs.Home}>
+            {/* <PersistPrefixKeyContext value={Tabs.Home}>
                 <div hidden={tab != Tabs.Home} style={{ height: "100%" }}>
                     home page
-                    {/* // TODO: make a home page */}
                 </div>
-            </PersistPrefixKeyContext>
+            </PersistPrefixKeyContext> */}
             {analyticsPages.map((e, i) => (
                 // pass tab key context to tab body
                 <PersistPrefixKeyContext key={i} value={e.name}>
