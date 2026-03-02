@@ -30,6 +30,12 @@ jobs:
         with:
           version: 10
 
+      - name: Setup Commit ID get
+        run: |
+          echo 'export const version = `' > src/app/version.ts
+          git log --pretty=format:'%H' -n 1 >> src/app/version.ts
+          echo '`.trim();' >> src/app/version.ts
+
       - name: Build Site
         run: |
           pnpm i

@@ -35,6 +35,7 @@ import { TBALogo } from "../components/tba_lamp";
 import { Tabs, type TabKeys } from "../lib/lib";
 import { analyticsPages } from "./analytics-tabs/index";
 import "./styles.css";
+import { version } from "./version";
 
 const fakeAPI = new Proxy<TBAAPI>({} as any, {
     get(_t, key: string) {
@@ -207,6 +208,12 @@ function App() {
                             <IconButton href="https://github.com/moojor224/frc-analysis-site" target="_blank" rel="noreferrer">
                                 <GitHubIcon fontSize="inherit" />
                             </IconButton>
+                        </Box>
+                        <Divider />
+                        <Box>
+                            <Typography fontSize="10px" fontFamily="monospace    ">
+                                {version}
+                            </Typography>
                         </Box>
                     </Drawer>
                     <Stack sx={{ height: "100%" }}>
