@@ -1,4 +1,4 @@
-import { Media } from "@moojor224/tba-api";
+import type { Media } from "@moojor224/tba-api";
 
 export default function MediaList({ media }: { media: Media | Media[] }) {
     if (!Array.isArray(media)) {

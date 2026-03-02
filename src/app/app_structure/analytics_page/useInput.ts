@@ -1,5 +1,5 @@
-import { PersistPrefixKeyContext } from "@/app/page.js";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { PersistPrefixKeyContext } from "@/app/page";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
 import { useContext } from "react";
 
 type Input<T> = {

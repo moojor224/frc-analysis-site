@@ -1,10 +1,10 @@
-import { PersistPrefixKeyContext } from "@/app/page.js";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { PersistPrefixKeyContext } from "@/app/page";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
 import { Button, Divider, FormControl, FormHelperText, Grid } from "@mui/material";
 import { useContext, useMemo } from "react";
-import type { Input, Step } from "../index.js";
-import NumberPipelineStep from "./inputs/Number.js";
-import SelectPipelineStep from "./inputs/Select.js";
+import type { Input, Step } from "../index";
+import NumberPipelineStep from "./inputs/Number";
+import SelectPipelineStep from "./inputs/Select";
 
 export default function InputStepComponent({
     step,

@@ -1,4 +1,4 @@
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
 import { Box, Button, Grid, Stack } from "@mui/material";
 
 export default function ZoomControls() {

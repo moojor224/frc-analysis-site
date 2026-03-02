@@ -1,11 +1,11 @@
-import ClearData from "@/components/ClearData.js";
-import FallbackComponent from "@/components/FallbackComponent.js";
-import MuiXLicense from "@/components/MuiXLicense.js";
-import PWA from "@/components/PWA.js";
-import Reload from "@/components/Reload.js";
-import ZoomControls from "@/components/ZoomControls.js";
-import { DBContextProvider } from "@/lib/useDBPersistentValue.js";
-import { useLSPersistentValue } from "@/lib/useLSPersistentValue.js";
+import ClearData from "@/components/ClearData";
+import FallbackComponent from "@/components/FallbackComponent";
+import MuiXLicense from "@/components/MuiXLicense";
+import PWA from "@/components/PWA";
+import Reload from "@/components/Reload";
+import ZoomControls from "@/components/ZoomControls";
+import { DBContextProvider } from "@/lib/useDBPersistentValue";
+import { useLSPersistentValue } from "@/lib/useLSPersistentValue";
 import { persistValue } from "@moojor224/persistent-value";
 import type { API_Status, SearchIndex } from "@moojor224/tba-api";
 import { setRateLimit, TBAAPI } from "@moojor224/tba-api";
@@ -32,8 +32,9 @@ import React, { createContext, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import "react-tabs/style/react-tabs.css";
-import { TBALogo } from "../components/tba_lamp.js";
-import { analyticsPages } from "./analytics-tabs/index.js";
+import { TBALogo } from "../components/tba_lamp";
+import { Tabs, type TabKeys } from "../lib/lib";
+import { analyticsPages } from "./analytics-tabs/index";
 import "./styles.css";
 
 const fakeAPI = new Proxy<TBAAPI>({} as any, {
@@ -97,15 +98,7 @@ if (key.get() === "dev") {
 }
 const API_KEY = key.get()!;
 
-export enum Tabs {
-    /** DON'T USE THIS ONE */
-    None = "None",
-    Home = "Home",
-    Season = "Season Analysis",
-    Event = "Event Analysis"
-}
-
-function TabSelect({ tab }: { tab: Tabs }) {
+function TabSelect({ tab }: { tab: TabKeys }) {
     return (
         <>
             {/* <PersistPrefixKeyContext value={Tabs.Home}>
@@ -123,7 +116,7 @@ function TabSelect({ tab }: { tab: Tabs }) {
     );
 }
 
-function Sidebar({ setActiveTab }: { setActiveTab: (value: Tabs) => void }) {
+function Sidebar({ setActiveTab }: { setActiveTab: (value: TabKeys) => void }) {
     return (
         <List>
             {/* // TODO: make a home page */}
@@ -154,7 +147,7 @@ function App() {
     const [loaded, setLoaded] = useState(false);
     const [loadMessage, setLoadMessage] = useState("Waiting for TheBlueAlliance API");
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeTab, setActiveTab] = useLSPersistentValue("frc-analysis-activepage", Tabs.Event);
+    const [activeTab, setActiveTab] = useLSPersistentValue<TabKeys>("frc-analysis-activepage", Tabs.Event);
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);
@@ -189,7 +182,7 @@ function App() {
                     >
                         <Sidebar
                             {...{
-                                setActiveTab: (tab: Tabs) => {
+                                setActiveTab: (tab: TabKeys) => {
                                     setActiveTab(tab);
                                     setShowSidebar(false);
                                 }

@@ -1,8 +1,8 @@
-import { useInput } from "@/app/app_structure/analytics_page/useInput.js";
+import { useInput } from "@/app/app_structure/analytics_page/useInput";
 import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
 import { useEffect } from "react";
-import { InputPipelineStep } from "../../PipelineRenderer.js";
-import { SelectInput } from "../../index.js";
+import { type InputPipelineStep } from "../../PipelineRenderer";
+import { type SelectInput } from "../../index";
 
 function string(val: string | null | undefined) {
     if (typeof val === "string") {

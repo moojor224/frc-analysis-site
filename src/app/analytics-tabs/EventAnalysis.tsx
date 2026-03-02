@@ -1,14 +1,15 @@
-import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
-import { createPipeline, Input, SelectInput } from "@/app/app_structure/pipeline/index.js";
-import EventDetails from "@/components/EventDetails.js";
-import GraphTitle from "@/components/GraphTitle.js";
-import { Event, Match } from "@moojor224/tba-api";
+import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline";
+import { createPipeline, type Input, type SelectInput } from "@/app/app_structure/pipeline/index";
+import EventDetails from "@/components/EventDetails";
+import GraphTitle from "@/components/GraphTitle";
+import { Tabs } from "@/lib/lib";
+
+import type { Event, Match } from "@moojor224/tba-api";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box, Button, Grid, Paper, Stack } from "@mui/material";
 import { BarChartPremium, LineChartPro } from "@mui/x-charts-premium";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useState } from "react";
-import { Tabs } from "../page.js";
 
 function getTeamRP(teamKey: string, match: Match, year: number) {
     if (match.comp_level !== "qm") return 0;

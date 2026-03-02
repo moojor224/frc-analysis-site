@@ -1,7 +1,7 @@
-import { Page } from "@/types.js";
-import EventAnalysis from "./EventAnalysis.js";
-import Home from "./Home.js";
-import SeasonAnalysis from "./SeasonAnalysis.js";
+import type { Page } from "@/types";
+import EventAnalysis from "./EventAnalysis";
+import Home from "./Home";
+import SeasonAnalysis from "./SeasonAnalysis";
 
 export const analyticsPages: Page[] = [/* Home, */ EventAnalysis, SeasonAnalysis];
 Home;

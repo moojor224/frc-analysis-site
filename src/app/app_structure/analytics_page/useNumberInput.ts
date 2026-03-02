@@ -1,4 +1,4 @@
-import { useInput } from "./useInput.js";
+import { useInput } from "./useInput";
 
 type NumberInput = {
     readonly has: boolean;

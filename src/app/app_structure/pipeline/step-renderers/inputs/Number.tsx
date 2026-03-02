@@ -1,9 +1,9 @@
-import { useNumberInput } from "@/app/app_structure/analytics_page/useNumberInput.js";
-import { ApiContext } from "@/app/page.js";
+import { useNumberInput } from "@/app/app_structure/analytics_page/useNumberInput";
+import { ApiContext } from "@/app/page";
 import { TBAAPI } from "@moojor224/tba-api";
 import { TextField } from "@mui/material";
 import { useContext, useEffect } from "react";
-import { InputPipelineStep } from "../../PipelineRenderer.js";
+import { type InputPipelineStep } from "../../PipelineRenderer";
 
 const NumberPipelineStep: InputPipelineStep<
     number,

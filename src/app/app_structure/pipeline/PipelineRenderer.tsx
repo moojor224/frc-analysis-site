@@ -1,11 +1,11 @@
-import { ApiContext, PersistPrefixKeyContext } from "@/app/page.js";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
-import { Alert, Box, CircularProgress, CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
+import { ApiContext, PersistPrefixKeyContext } from "@/app/page";
+import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
+import { Alert, Box, CircularProgress, type CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import type { Pipeline } from "./index.js";
-import ApiError from "./step-renderers/ApiError.js";
-import InputStepComponent from "./step-renderers/InputStep.js";
+import type { Pipeline } from "./index";
+import ApiError from "./step-renderers/ApiError";
+import InputStepComponent from "./step-renderers/InputStep";
 
 export type InputPipelineStep<T, U = never> = React.FunctionComponent<U & { setValue(value: T): void; name: string }>;
 

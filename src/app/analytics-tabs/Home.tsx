@@ -1,7 +1,7 @@
-import { Page } from "@/types.js";
+import { Tabs } from "@/lib/lib";
+import type { Page } from "@/types";
 import HomeIcon from "@mui/icons-material/Home";
 import { Box } from "@mui/material";
-import { Tabs } from "../page.js";
 
 const name = Tabs.Home;
 

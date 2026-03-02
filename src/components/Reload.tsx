@@ -1,4 +1,4 @@
-import { DBContext } from "@/lib/useDBPersistentValue.js";
+import { DBContext } from "@/lib/useDBPersistentValue";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Button } from "@mui/material";
 import { useContext, useState } from "react";

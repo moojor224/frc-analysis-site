@@ -1,15 +1,15 @@
+import type { TabKeys } from "@/lib/lib";
 import { TBAAPI } from "@moojor224/tba-api";
 import React from "react";
-import { Tabs } from "../page.js";
-import { createAnalyticsPage } from "./createAnalyticsPage.js";
-import { Pipeline } from "./pipeline/index.js";
-import { PipelineRenderer } from "./pipeline/PipelineRenderer.js";
+import { createAnalyticsPage } from "./createAnalyticsPage";
+import { type Pipeline } from "./pipeline/index";
+import { PipelineRenderer } from "./pipeline/PipelineRenderer";
 
 /**
  * simple createAnalyticsPage wrapper to make the inputs section pipeline-generated
  */
 export function createAnalyticsPagePipeline<T>(
-    name: Tabs,
+    name: TabKeys,
     icon: React.ReactNode,
     pipeline: Pipeline<T>,
     BodyComponent: React.FunctionComponent<{

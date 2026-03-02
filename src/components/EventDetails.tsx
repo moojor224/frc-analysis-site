@@ -1,4 +1,4 @@
-import { Event } from "@/lib/tba_api/types.js";
+import type { Event } from "@moojor224/tba-api";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
     Accordion,

@@ -1,6 +1,6 @@
-import { ApiContext, PersistPrefixKeyContext, Tabs } from "@/app/page.js";
-import FallbackComponent from "@/components/FallbackComponent.js";
-import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue.js";
+import { ApiContext, PersistPrefixKeyContext } from "@/app/page";
+import FallbackComponent from "@/components/FallbackComponent";
+import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue";
 import { TBAAPI } from "@moojor224/tba-api";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -17,7 +17,8 @@ import type { TabScrollButtonProps } from "@mui/material/TabScrollButton";
 import MaterialTabs from "@mui/material/Tabs";
 import React, { useContext } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useInstanceManager } from "./analytics_page/useInstanceManager.js";
+import type { TabKeys } from "../../lib/lib";
+import { useInstanceManager } from "./analytics_page/useInstanceManager";
 
 type PickerComponent<T> = React.FunctionComponent<{
     api: TBAAPI;
@@ -37,7 +38,7 @@ function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
 }
 
 export function createAnalyticsPage<T>(
-    name: Tabs,
+    name: TabKeys,
     icon: React.ReactNode,
     PickerComponent: PickerComponent<T>,
     BodyComponent: BodyComponent<T>

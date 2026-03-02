@@ -1,11 +1,11 @@
-import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline.js";
-import { createPipeline, type Input } from "@/app/app_structure/pipeline/index.js";
-import GraphTitle from "@/components/GraphTitle.js";
-import { Match, Match_alliance, Team } from "@moojor224/tba-api";
+import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalyticsPagePipeline";
+import { createPipeline, type Input } from "@/app/app_structure/pipeline/index";
+import GraphTitle from "@/components/GraphTitle";
+import { Tabs } from "@/lib/lib";
+import type { Match, Match_alliance, Team } from "@moojor224/tba-api";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Box } from "@mui/material";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
-import { Tabs } from "../page.js";
 
 function getAllianceTeams(alliances: Match_alliance): string[] {
     const teams: string[] = [];
