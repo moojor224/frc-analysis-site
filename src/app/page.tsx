@@ -31,7 +31,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import React, { createContext, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
-import "react-tabs/style/react-tabs.css";
 import { TBALogo } from "../components/tba_lamp";
 import { Tabs, type TabKeys } from "../lib/lib";
 import { analyticsPages } from "./analytics-tabs/index";
@@ -122,7 +121,7 @@ function Sidebar({ setActiveTab }: { setActiveTab: (value: TabKeys) => void }) {
             {/* // TODO: make a home page */}
             {/* <SidebarItem icon={<HomeIcon />} text={Tabs.Home} onClick={(e) => setActiveTab(e)} /> */}
             {analyticsPages.map((e, i) => (
-                <SidebarItem icon={e.icon} text={e.name} onClick={(e) => setActiveTab(e)} />
+                <SidebarItem key={i} icon={e.icon} text={e.name} onClick={(e) => setActiveTab(e)} />
             ))}
         </List>
     );

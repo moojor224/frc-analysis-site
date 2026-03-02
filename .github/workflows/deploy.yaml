@@ -32,7 +32,6 @@ jobs:
 
       - name: Build Site
         run: |
-          pwd
           pnpm i
           pnpm run build
 

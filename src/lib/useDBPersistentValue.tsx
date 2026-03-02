@@ -208,7 +208,7 @@ export function DBContextProvider({
     Fallback?: React.FunctionComponent<{ dbAdapter: DBAdapter }>;
 }) {
     if (count > 10) {
-        debugger;
+        console.warn("db context provider rerendered 10+ times");
         count = 0;
     }
     count++;

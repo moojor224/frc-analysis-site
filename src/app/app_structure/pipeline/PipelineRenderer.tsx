@@ -93,7 +93,7 @@ function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(val
                     if (index > activeStep) return null;
 
                     return (
-                        <PersistPrefixKeyContext value={`${analyticsPageTabPrefix}-inputstep${index}`}>
+                        <PersistPrefixKeyContext key={index} value={`${analyticsPageTabPrefix}-inputstep${index}`}>
                             {(() => {
                                 function getLastData() {
                                     if (index === 0) return undefined;

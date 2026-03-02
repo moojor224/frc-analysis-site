@@ -4,7 +4,7 @@ import GraphTitle from "@/components/GraphTitle";
 import { Tabs } from "@/lib/lib";
 import type { Match, Match_alliance, Team } from "@moojor224/tba-api";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { Box } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 
 function getAllianceTeams(alliances: Match_alliance): string[] {
@@ -71,42 +71,44 @@ export default createAnalyticsPagePipeline(
         return (
             <div>
                 not fully implemented yet...
-                <GraphTitle text="District Points Ranking" />
-                <Box style={{ height: "100vh" }}>
-                    <DataGridPremium
-                        autoHeight={false}
-                        rowHeight={25}
-                        disableRowSelectionOnClick
-                        columns={[
-                            {
-                                field: "team_number",
-                                headerName: "Team #",
-                                flex: 1
-                            },
-                            {
-                                field: "point_total",
-                                headerName: "Points",
-                                flex: 1
-                            },
-                            {
-                                field: "rank",
-                                headerName: "Rank",
-                                flex: 1
-                            }
-                        ]}
-                        rows={data.rankings.map((r) => ({
-                            id: r.team_key,
-                            team_number: data.teams.find((t) => t.key === r.team_key)?.team_number ?? 0,
-                            point_total: r.point_total,
-                            rank: r.rank
-                        }))}
-                        // sortModel={[{ field: "points_total", sort: "desc" }]}
-                        initialState={{ sorting: { sortModel: [{ field: "rank", sort: "asc" }] } }}
-                        getRowClassName={(params) => {
-                            return params.row.team_number == data.team ? "target-team" : "";
-                        }}
-                    />
-                </Box>
+                <Paper elevation={6}>
+                    <GraphTitle text="District Points Ranking" />
+                    <Box style={{ height: "1000px" }}>
+                        <DataGridPremium
+                            autoHeight={false}
+                            rowHeight={25}
+                            disableRowSelectionOnClick
+                            columns={[
+                                {
+                                    field: "team_number",
+                                    headerName: "Team #",
+                                    flex: 1
+                                },
+                                {
+                                    field: "point_total",
+                                    headerName: "Points",
+                                    flex: 1
+                                },
+                                {
+                                    field: "rank",
+                                    headerName: "Rank",
+                                    flex: 1
+                                }
+                            ]}
+                            rows={data.rankings.map((r) => ({
+                                id: r.team_key,
+                                team_number: data.teams.find((t) => t.key === r.team_key)?.team_number ?? 0,
+                                point_total: r.point_total,
+                                rank: r.rank
+                            }))}
+                            // sortModel={[{ field: "points_total", sort: "desc" }]}
+                            initialState={{ sorting: { sortModel: [{ field: "rank", sort: "asc" }] } }}
+                            getRowClassName={(params) => {
+                                return params.row.team_number == data.team ? "target-team" : "";
+                            }}
+                        />
+                    </Box>
+                </Paper>
             </div>
         );
     }

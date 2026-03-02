@@ -69,7 +69,7 @@ export default createAnalyticsPagePipeline(
         )
         .then(([data]) => {
             const events = data.events;
-            if (!events) return events;
+            if (!events) return null;
             return events.length === 0 ? null : { events, data: data.data };
         })
         .messageIfNone("No events found for given team and year", "info")
@@ -316,7 +316,7 @@ export default createAnalyticsPagePipeline(
                                             field: "teamNumber",
                                             headerName: "Team #",
                                             flex: 1,
-                                            valueGetter(v, m) {
+                                            valueGetter(v, m: (typeof penalties)[0]) {
                                                 const num = parseInt(m.teamNumber);
                                                 if (isNaN(num)) return m.teamNumber;
                                                 return num;
@@ -334,7 +334,8 @@ export default createAnalyticsPagePipeline(
                                     rows={penalties.filter((e) => e.teamNumber !== "undefined")}
                                     disableRowSelectionOnClick
                                     getRowClassName={(params) => {
-                                        return parseInt(params.row.teamNumber) == targetTeam ? "target-team" : "";
+                                        const row: (typeof penalties)[0] = params.row as typeof row;
+                                        return parseInt(row.teamNumber) == targetTeam ? "target-team" : "";
                                     }}
                                 />
                             </Paper>
