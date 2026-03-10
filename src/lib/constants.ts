@@ -1,0 +1,9 @@
+const xs = 4;
+const sm = 8;
+const md = 12;
+const lg = 16;
+export const muiBreakpointsColumn = { xs, sm, md, lg };
+export const muiBreakpointsWhole = muiBreakpointsColumn;
+export const muiBreakpointsHalf = { xs, sm, md: md / 2, lg: lg / 2 };
+export const muiBreakpointsThird = { xs, sm, md, lg: lg / 3 };
+export const muiBreakpointsQuarter = { xs, sm: sm / 2, md: md / 4, lg: lg / 4 };

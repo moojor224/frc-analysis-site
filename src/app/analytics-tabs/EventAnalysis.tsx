@@ -2,8 +2,8 @@ import { createAnalyticsPagePipeline } from "@/app/app_structure/createAnalytics
 import { createPipeline, type Input, type SelectInput } from "@/app/app_structure/pipeline/index";
 import EventDetails from "@/components/EventDetails";
 import GraphTitle from "@/components/GraphTitle";
+import { muiBreakpointsColumn, muiBreakpointsHalf, muiBreakpointsQuarter, muiBreakpointsWhole } from "@/lib/constants";
 import { Tabs } from "@/lib/lib";
-
 import type { Event, Match } from "@moojor224/tba-api";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box, Button, Grid, Paper, Stack } from "@mui/material";
@@ -227,15 +227,13 @@ export default createAnalyticsPagePipeline(
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
-        const [key, setKey] = useState(0);
         const rollRows = Object.entries(roll).map((e) => ({ team: parseInt(e[0]), rp: e[1], id: e[0] }));
         return (
             <Box>
                 <Stack spacing={2}>
                     <EventDetails event={event} />
-                    {/* <Paper sx={{ padding: 3 }} elevation={6}> */}
-                    <Grid container columns={{ xs: 4, sm: 8, md: 12 }} spacing={4}>
-                        <Grid hidden={rollRows.length == 0} size={12}>
+                    <Grid container columns={muiBreakpointsColumn} spacing={4}>
+                        <Grid hidden={rollRows.length == 0} size={muiBreakpointsWhole}>
                             <Paper elevation={6}>
                                 <GraphTitle text="Ranking Points by Match" />
                                 <Button variant="outlined" onClick={() => setShowGraph(ShowGraph.All)}>
@@ -279,7 +277,7 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
-                        <Grid hidden={penalties.length == 0} size={12} sx={{ flexGrow: 1 }}>
+                        <Grid hidden={penalties.length == 0} size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text="Penalty Points Differential" />
                                 <BarChartPremium
@@ -306,7 +304,7 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
-                        <Grid hidden={penalties.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
+                        <Grid hidden={penalties.length == 0} size={muiBreakpointsHalf} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text="Penalty Points Breakdown" />
                                 <DataGridPremium
@@ -340,7 +338,7 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
-                        <Grid hidden={rollRows.length == 0} size={{ xs: 4, sm: 8, md: 6 }} sx={{ flexGrow: 1 }}>
+                        <Grid hidden={rollRows.length == 0} size={muiBreakpointsQuarter} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text="Ranking Points" />
                                 <DataGridPremium
@@ -357,7 +355,7 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
-                        <Grid size={{ xs: 4, sm: 8, md: 12 }} sx={{ flexGrow: 1 }}>
+                        <Grid hidden={teamMatches.length == 0} size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text={targetTeam + " Match Breakdown"} />
                                 <DataGridPremium
@@ -380,7 +378,6 @@ export default createAnalyticsPagePipeline(
                             </Paper>
                         </Grid>
                     </Grid>
-                    {/* </Paper> */}
                 </Stack>
             </Box>
         );
