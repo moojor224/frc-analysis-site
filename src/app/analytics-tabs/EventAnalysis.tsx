@@ -95,22 +95,31 @@ export default createAnalyticsPagePipeline(
             data,
             event: events.find((e) => e.key === eventId)!
         }))
-        .api((api, { data, event }) => [{ data, event }, api.getEventMatches(event.key), api.getEventTeams(event.key)] as const)
-        .then(([data, matches, oopsAllTeams]) => {
+        .api(
+            (api, { data, event }) =>
+                [
+                    { data, event },
+                    api.getEventMatches(event.key),
+                    api.getEventTeams(event.key),
+                    api.getEventRankings(event.key)
+                ] as const
+        )
+        .then(([data, matches, oopsAllTeams, rankings]) => {
             if (matches === null || matches.length === 0) return null;
-            return [data, matches!, oopsAllTeams];
+            return [data, matches!, oopsAllTeams, rankings];
         })
         .messageIfNone("No matches found for selected event", "info")
-        .then(([data, matches, teams]) => {
+        .then(([data, matches, teams, rankings]) => {
             if (teams === null || teams.length === 0) return null;
             return [
                 data,
                 matches.sort((a, b) => a.match_number - b.match_number),
-                teams!.sort((a, b) => a.team_number - b.team_number)
+                teams!.sort((a, b) => a.team_number - b.team_number),
+                rankings
             ];
         })
         .messageIfNone("No teams found for selected event. (How???). The api might have just gone down", "error")
-        .then(([data, matches, teams]) => {
+        .then(([data, matches, teams, rankings]) => {
             const teamKeyToNumber: Record<string, number> = {};
             teams.forEach((t) => {
                 teamKeyToNumber[t.key] = t.team_number;
@@ -211,7 +220,7 @@ export default createAnalyticsPagePipeline(
                     return matchData;
                 })
                 .filter((e) => e !== null);
-            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches] as const;
+            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches, rankings] as const;
         }),
     function ({
         data: [
@@ -223,7 +232,8 @@ export default createAnalyticsPagePipeline(
             matchRPs,
             roll,
             penalties,
-            teamMatches
+            teamMatches,
+            rankings
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
@@ -355,6 +365,11 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
+                        {/* <Grid hidden={rankings == null} size={muiBreakpointsQuarter} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <GraphTitle text="Rankings" />
+                            </Paper>
+                        </Grid> */}
                         <Grid hidden={teamMatches.length == 0} size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text={targetTeam + " Match Breakdown"} />
