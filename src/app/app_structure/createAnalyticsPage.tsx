@@ -15,6 +15,7 @@ import Button from "@mui/material/Button";
 import Tab from "@mui/material/Tab";
 import type { TabScrollButtonProps } from "@mui/material/TabScrollButton";
 import MaterialTabs from "@mui/material/Tabs";
+import Preact from "preact";
 import React, { useContext } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import type { TabKeys } from "../../lib/lib";
@@ -29,7 +30,7 @@ type BodyComponent<T> = React.FunctionComponent<{
     data: T;
 }>;
 
-function B({ ico, oc }: { oc: React.MouseEventHandler; ico: React.ReactNode }) {
+function B({ ico, oc }: { oc: Preact.MouseEventHandler<HTMLButtonElement>; ico: React.ReactNode }) {
     return (
         <Button onClick={oc} variant="outlined">
             {ico}

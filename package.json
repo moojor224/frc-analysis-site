@@ -15,8 +15,9 @@
         "@mui/x-charts-premium": "^8.27.0",
         "@mui/x-data-grid-premium": "^8.27.0",
         "@mui/x-license": "^8.26.0",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4",
+        "preact": "^10.29.0",
+        "react": "npm:@preact/compat@^18.3.2",
+        "react-dom": "npm:@preact/compat@^18.3.2",
         "react-error-boundary": "^6.1.0"
     },
     "scripts": {

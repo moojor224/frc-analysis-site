@@ -8,7 +8,11 @@ export default defineConfig({
     plugins: [react(), viteSingleFile()],
     resolve: {
         alias: {
-            "@": fileURLToPath(new URL("./src", import.meta.url))
+            "@": fileURLToPath(new URL("./src", import.meta.url)),
+            react: "preact/compat",
+            "react-dom/test-utils": "preact/test-utils",
+            "react-dom": "preact/compat", // Must be below test-utils
+            "react/jsx-runtime": "preact/jsx-runtime"
         }
     },
     build: {

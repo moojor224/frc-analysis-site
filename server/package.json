@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "server": "node server.cjs"
+    },
+    "dependencies": {
+        "express": "^5.2.1"
+    }
+}

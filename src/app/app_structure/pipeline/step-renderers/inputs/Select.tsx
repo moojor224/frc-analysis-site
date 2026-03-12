@@ -27,7 +27,7 @@ const SelectPipelineStep: InputPipelineStep<string, { input: SelectInput<any> }>
             <Select
                 label={name}
                 value={value.value}
-                onChange={(evt) => value.set(string(evt.target.value))}
+                onInput={(evt) => value.set(string((evt.target as HTMLSelectElement).value))}
                 size="small"
                 margin="none"
                 autoWidth
