@@ -230,7 +230,8 @@ export default createAnalyticsPagePipeline(
                 .filter((e) => e !== null);
             const losingMatches = teamMatches.filter((e) => !e.win).map((e) => e.score);
             const avgLosingScore = losingMatches.reduce((a, b) => a + b, 0) / losingMatches.length;
-            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches, rankings, avgLosingScore] as const;
+            const avgScore = teamMatches.reduce((a, b) => a + b.score, 0) / teamMatches.length;
+            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches, rankings, avgScore, avgLosingScore] as const;
         }),
     function ({
         data: [
@@ -244,6 +245,7 @@ export default createAnalyticsPagePipeline(
             penalties,
             teamMatches,
             rankings,
+            avgScore,
             avgLosingScore
         ]
     }) {
@@ -402,6 +404,7 @@ export default createAnalyticsPagePipeline(
                                             : "";
                                     }}
                                     getRowId={(row) => row.team_key}
+                                    sortModel={[{ field: "rank", sort: "desc" }]}
                                 />
                             </Paper>
                         </Grid>
@@ -430,7 +433,8 @@ export default createAnalyticsPagePipeline(
                         <Grid size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text={targetTeam + " Average Losing Score"} />
-                                <div>{avgLosingScore}</div>
+                                <div>avg score: {avgScore.toFixed(2)}</div>
+                                <div>avg losing score: {avgLosingScore.toFixed(2)}</div>
                             </Paper>
                         </Grid>
                     </Grid>
