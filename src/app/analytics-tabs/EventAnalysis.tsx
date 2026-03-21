@@ -432,7 +432,7 @@ export default createAnalyticsPagePipeline(
                         </Grid>
                         <Grid size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
-                                <GraphTitle text={targetTeam + " Average Losing Score"} />
+                                <GraphTitle text={targetTeam + " Other Stats"} />
                                 <div>avg score: {avgScore.toFixed(2)}</div>
                                 <div>avg losing score: {avgLosingScore.toFixed(2)}</div>
                             </Paper>
