@@ -12,18 +12,22 @@ import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useState } from "react";
 
 function getTeamRP(teamKey: string, match: Match, year: number) {
-    if (match.comp_level !== "qm") return 0;
-    const { red, blue } = match.alliances;
-    const redHas = red.team_keys.includes(teamKey);
-    const blueHas = blue.team_keys.includes(teamKey);
-    if (!(redHas || blueHas)) return 0;
-    let alliance: "red" | "blue" = "blue";
-    if (redHas) {
-        alliance = "red";
+    try {
+        if (match.comp_level !== "qm") return 0;
+        const { red, blue } = match.alliances;
+        const redHas = red.team_keys.includes(teamKey);
+        const blueHas = blue.team_keys.includes(teamKey);
+        if (!(redHas || blueHas)) return 0;
+        let alliance: "red" | "blue" = "blue";
+        if (redHas) {
+            alliance = "red";
+        }
+        // TODO: check year
+        // @ts-ignore
+        return (match.score_breakdown[alliance]?.rp as number) ?? 0;
+    } catch {
+        return 0;
     }
-    // TODO: check year
-    // @ts-ignore
-    return (match.score_breakdown[alliance]?.rp as number) ?? 0;
 }
 
 function renderDiffCell(params: { row: { diff: number }; value?: any }) {
@@ -194,12 +198,14 @@ export default createAnalyticsPagePipeline(
                     let myPen = 0;
                     let theyPen = 0;
                     let score = 0;
+                    let win = false;
                     if (isRed) {
                         // @ts-ignore
                         myPen = m.score_breakdown?.blue?.foulPoints ?? 0;
                         // @ts-ignore
                         theyPen = m.score_breakdown?.red?.foulPoints ?? 0;
                         score = red.score;
+                        win = score > blue.score;
                     }
                     if (isBlue) {
                         // @ts-ignore
@@ -207,6 +213,7 @@ export default createAnalyticsPagePipeline(
                         // @ts-ignore
                         theyPen = m.score_breakdown?.blue?.foulPoints ?? 0;
                         score = blue.score;
+                        win = score > red.score;
                     }
                     const matchData = {
                         id: m.match_number + m.comp_level,
@@ -215,12 +222,15 @@ export default createAnalyticsPagePipeline(
                         oppPenCommit: theyPen,
                         diff: theyPen - myPen,
                         level: m.comp_level,
-                        score
+                        score,
+                        win
                     };
                     return matchData;
                 })
                 .filter((e) => e !== null);
-            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches, rankings] as const;
+            const losingMatches = teamMatches.filter((e) => !e.win).map((e) => e.score);
+            const avgLosingScore = losingMatches.reduce((a, b) => a + b, 0) / losingMatches.length;
+            return [data, teams, matchRPs, roll, penaltiesFormatted, teamMatches, rankings, avgLosingScore] as const;
         }),
     function ({
         data: [
@@ -233,7 +243,8 @@ export default createAnalyticsPagePipeline(
             roll,
             penalties,
             teamMatches,
-            rankings
+            rankings,
+            avgLosingScore
         ]
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
@@ -390,6 +401,12 @@ export default createAnalyticsPagePipeline(
                                     rows={teamMatches}
                                     disableRowSelectionOnClick
                                 />
+                            </Paper>
+                        </Grid>
+                        <Grid size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
+                            <Paper elevation={6}>
+                                <GraphTitle text={targetTeam + " Average Losing Score"} />
+                                <div>{avgLosingScore}</div>
                             </Paper>
                         </Grid>
                     </Grid>
