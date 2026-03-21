@@ -376,11 +376,35 @@ export default createAnalyticsPagePipeline(
                                 />
                             </Paper>
                         </Grid>
-                        {/* <Grid hidden={rankings == null} size={muiBreakpointsQuarter} sx={{ flexGrow: 1 }}>
+                        <Grid
+                            hidden={rankings == null || rankings.rankings.length == 0}
+                            size={muiBreakpointsQuarter}
+                            sx={{ flexGrow: 1 }}
+                        >
                             <Paper elevation={6}>
                                 <GraphTitle text="Rankings" />
+                                <DataGridPremium
+                                    rowHeight={25}
+                                    columns={[
+                                        {
+                                            field: "team_key",
+                                            headerName: "Team Number",
+                                            flex: 1,
+                                            valueFormatter: (val, row) => teams.find((t) => t.key == row.team_key)?.team_number
+                                        },
+                                        { field: "rank", headerName: "Rank", flex: 1 }
+                                    ]}
+                                    rows={rankings.rankings}
+                                    disableRowSelectionOnClick
+                                    getRowClassName={(params) => {
+                                        return teams.find((t) => t.key == params.row.team_key)?.team_number == targetTeam
+                                            ? "target-team"
+                                            : "";
+                                    }}
+                                    getRowId={(row) => row.team_key}
+                                />
                             </Paper>
-                        </Grid> */}
+                        </Grid>
                         <Grid hidden={teamMatches.length == 0} size={muiBreakpointsWhole} sx={{ flexGrow: 1 }}>
                             <Paper elevation={6}>
                                 <GraphTitle text={targetTeam + " Match Breakdown"} />
