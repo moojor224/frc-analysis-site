@@ -10,6 +10,7 @@ export default function Reload() {
         const int = setInterval(() => {
             if (reload && db.work.size == 0) {
                 location.reload();
+                setReload(false);
             }
         });
         return () => clearInterval(int);
