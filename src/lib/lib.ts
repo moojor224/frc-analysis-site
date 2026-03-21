@@ -3,6 +3,7 @@ export const Tabs = {
     None: "None",
     Home: "Home",
     Season: "Season Analysis",
-    Event: "Event Analysis"
+    Event: "Event Analysis",
+    Debug: "Debug"
 } as const;
 export type TabKeys = (typeof Tabs)[keyof typeof Tabs];

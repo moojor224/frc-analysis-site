@@ -1,5 +1,5 @@
 import { PersistPrefixKeyContext } from "@/app/page";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
+import { useStoredValue } from "@moojor224/react-hooks";
 import { Button, Divider, FormControl, FormHelperText, Grid } from "@mui/material";
 import { useContext, useMemo } from "react";
 import type { Input, Step } from "../index";
@@ -25,7 +25,7 @@ export default function InputStepComponent({
         }
         return [];
     }, [step]);
-    const [values, setValues] = useDBPersistentValue<any[]>(
+    const [values, setValues] = useStoredValue<any[]>(
         analyticsPageTabInputstepPrefix + "-values",
         inputs.map((e) => {
             // initialize array of inputs with raw inputs pre-filled

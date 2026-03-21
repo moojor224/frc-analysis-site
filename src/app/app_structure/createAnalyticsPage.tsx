@@ -1,6 +1,6 @@
 import { ApiContext, PersistPrefixKeyContext } from "@/app/page";
 import FallbackComponent from "@/components/FallbackComponent";
-import { DBContext, useDBPersistentValue } from "@/lib/useDBPersistentValue";
+import { StorageContext, useStoredValue } from "@moojor224/react-hooks";
 import { TBAAPI } from "@moojor224/tba-api";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -46,7 +46,7 @@ export function createAnalyticsPage<T>(
     function Instance() {
         const analyticsPagePrefix = useContext(PersistPrefixKeyContext);
         const api = useContext(ApiContext);
-        const [data, setData] = useDBPersistentValue<T | null>(`${analyticsPagePrefix}-data`, null);
+        const [data, setData] = useStoredValue<T | null>(`${analyticsPagePrefix}-data`, null);
         return (
             <Container maxWidth="xl" sx={{ padding: 3 }}>
                 <Stack spacing={2}>
@@ -78,11 +78,11 @@ export function createAnalyticsPage<T>(
         );
     }
     function Component() {
-        const IDB = useContext(DBContext);
+        const IDB = useContext(StorageContext);
         const analyticsPageId = useContext(PersistPrefixKeyContext);
-        const [activeTab, setActiveTab] = useDBPersistentValue(`${analyticsPageId}-activetab`, 0);
-        const [tabNums, setTabNums] = useDBPersistentValue<number[]>(`${analyticsPageId}-tabnumsarr`, []);
-        const [tabNameMap, setTabNameMap] = useDBPersistentValue<Record<string | number, string>>(
+        const [activeTab, setActiveTab] = useStoredValue(`${analyticsPageId}-activetab`, 0);
+        const [tabNums, setTabNums] = useStoredValue<number[]>(`${analyticsPageId}-tabnumsarr`, []);
+        const [tabNameMap, setTabNameMap] = useStoredValue<Record<string | number, string>>(
             `${analyticsPageId}-tabnamemap`,
             {}
         );
@@ -100,7 +100,11 @@ export function createAnalyticsPage<T>(
             delete tabNums[activeTab];
             setTabNums(Array.from(tabNums.filter((e) => typeof e == "number")));
             const prefix = analyticsPageId + "-" + instance.id;
-            IDB.clear(prefix);
+            IDB.keys().forEach((k) => {
+                if (k.startsWith(prefix)) {
+                    IDB.deleteValue(k);
+                }
+            });
         }
         const selectedInstance = manager.instances[activeTab];
         if (!selectedInstance && manager.instances.length > 0) {

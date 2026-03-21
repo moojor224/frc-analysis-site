@@ -1,5 +1,5 @@
 import { ApiContext, PersistPrefixKeyContext } from "@/app/page";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
+import { useStoredValue } from "@moojor224/react-hooks";
 import { Alert, Box, CircularProgress, type CircularProgressProps, Grid, LinearProgress, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -70,10 +70,10 @@ function CircularProgressWithLabel(props: CircularProgressProps & { value: numbe
 
 function Inner({ pipeline, setOutput }: { pipeline: Pipeline<any>; setOutput(value: any): void }) {
     const analyticsPageTabPrefix = useContext(PersistPrefixKeyContext);
-    const [values, setValues] = useDBPersistentValue<any[]>(`${analyticsPageTabPrefix}-valuesarr`, []);
-    const [activeStep, setActiveStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-activestep`, 0);
+    const [values, setValues] = useStoredValue<any[]>(`${analyticsPageTabPrefix}-valuesarr`, []);
+    const [activeStep, setActiveStep] = useStoredValue<number>(`${analyticsPageTabPrefix}-activestep`, 0);
     // keep track of last run api call step. only call setLastRunStep on steps that don't auto-run
-    const [lastRunStep, setLastRunStep] = useDBPersistentValue<number>(`${analyticsPageTabPrefix}-lastrunstep`, -1);
+    const [lastRunStep, setLastRunStep] = useStoredValue<number>(`${analyticsPageTabPrefix}-lastrunstep`, -1);
     const [apiError, setApiError] = useState<Error | null>(null);
     const api = useContext(ApiContext);
     const steps = pipeline.build();

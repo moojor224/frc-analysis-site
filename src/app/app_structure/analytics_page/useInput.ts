@@ -1,5 +1,5 @@
 import { PersistPrefixKeyContext } from "@/app/page";
-import { useDBPersistentValue } from "@/lib/useDBPersistentValue";
+import { useStoredValue } from "@moojor224/react-hooks";
 import { useContext } from "react";
 
 type Input<T> = {
@@ -13,10 +13,10 @@ type Input<T> = {
 
 export function useInput<T>() {
     const prefix = useContext(PersistPrefixKeyContext);
-    const [value, setValue] = useDBPersistentValue<T | undefined>(prefix + "-value", undefined);
-    const [has, setHas] = useDBPersistentValue(prefix + "-has", false);
-    const [errorMessage, setErrorMessage] = useDBPersistentValue(prefix + "-errorMessage", "");
-    const [hasError, setHasError] = useDBPersistentValue(prefix + "-hasError", false);
+    const [value, setValue] = useStoredValue<T | undefined>(prefix + "-value", undefined);
+    const [has, setHas] = useStoredValue(prefix + "-has", false);
+    const [errorMessage, setErrorMessage] = useStoredValue(prefix + "-errorMessage", "");
+    const [hasError, setHasError] = useStoredValue(prefix + "-hasError", false);
     const input = {
         has,
         value,

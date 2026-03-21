@@ -4,11 +4,11 @@ import MuiXLicense from "@/components/MuiXLicense";
 import PWA from "@/components/PWA";
 import Reload from "@/components/Reload";
 import ZoomControls from "@/components/ZoomControls";
-import { DBContextProvider } from "@/lib/useDBPersistentValue";
-import { useLSPersistentValue } from "@/lib/useLSPersistentValue";
 import { persistValue } from "@moojor224/persistent-value";
+import { StorageContext, StorageContextProvider, useStorageAdapter, useStoredValue } from "@moojor224/react-hooks";
 import type { API_Status, SearchIndex } from "@moojor224/tba-api";
 import { setRateLimit, TBAAPI } from "@moojor224/tba-api";
+import DebugIcon from "@mui/icons-material/BugReport";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
@@ -22,13 +22,14 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Paper,
     Stack,
     Toolbar,
     Typography
 } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import React, { createContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { TBALogo } from "../components/tba_lamp";
@@ -106,6 +107,13 @@ function TabSelect({ tab }: { tab: TabKeys }) {
                     home page
                 </div>
             </PersistPrefixKeyContext> */}
+            <PersistPrefixKeyContext value={Tabs.Debug}>
+                <div hidden={tab != Tabs.Debug} style={{ height: "100%" }}>
+                    debug page
+                    <br />
+                    <Counter />
+                </div>
+            </PersistPrefixKeyContext>
             {analyticsPages.map((e, i) => (
                 // pass tab key context to tab body
                 <PersistPrefixKeyContext key={i} value={e.name}>
@@ -147,7 +155,12 @@ function App() {
     const [loaded, setLoaded] = useState(false);
     const [loadMessage, setLoadMessage] = useState("Waiting for TheBlueAlliance API");
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeTab, setActiveTab] = useLSPersistentValue<TabKeys>("frc-analysis-activepage", Tabs.Event);
+    const [activeTab, setActiveTab] = useStoredValue<TabKeys>("frc-analysis-activepage", Tabs.Event);
+    const IDB = useStorageAdapter({
+        type: "IndexedDB",
+        database: DBNAME,
+        store: STORENAME
+    });
 
     const api = useMemo(() => {
         const api = new TBAAPI(API_KEY);
@@ -191,9 +204,9 @@ function App() {
                         <Divider />
                         <Box flexGrow={1} />
                         <Divider sx={{ margin: "5px 0px" }} />
-                        <DBContextProvider dbName={DBNAME} storeName={STORENAME}>
+                        <StorageContextProvider value={IDB} wait={false}>
                             <ClearData />
-                        </DBContextProvider>
+                        </StorageContextProvider>
                         <Divider sx={{ margin: "5px 0px" }} />
                         <ZoomControls />
                         <Divider sx={{ marginTop: "10px" }} />
@@ -205,6 +218,9 @@ function App() {
                         </Stack>
                         <Divider sx={{ margin: "5px 0px" }} />
                         <Box display="flex" alignItems="center" justifyContent="center" marginBottom="5px">
+                            <IconButton onClick={() => setActiveTab(Tabs.Debug)} href="" target="_blank" rel="noreferrer">
+                                {version == "development" ? <DebugIcon /> : null}
+                            </IconButton>
                             <IconButton href="https://github.com/moojor224/frc-analysis-site" target="_blank" rel="noreferrer">
                                 <GitHubIcon fontSize="inherit" />
                             </IconButton>
@@ -243,14 +259,15 @@ function App() {
                         {loaded ? (
                             // don't render site until api has loaded
                             // once loaded is true, it won't change to false, so no risk in recreating DB connections
-                            <DBContextProvider dbName={DBNAME} storeName={STORENAME} wait={true}>
+                            <StorageContextProvider value={IDB} wait={true}>
                                 {/* don't render site until DB has loaded */}
                                 <Box id="body" sx={{ flexGrow: 1, minHeight: "0" }}>
+                                    {/* <Counter /> */}
                                     <ErrorBoundary FallbackComponent={FallbackComponent()}>
                                         <TabSelect tab={activeTab} />
                                     </ErrorBoundary>
                                 </Box>
-                            </DBContextProvider>
+                            </StorageContextProvider>
                         ) : (
                             <Box>
                                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -265,4 +282,53 @@ function App() {
     );
 }
 
-ReactDOM.createRoot(document.querySelector("#root")!).render(React.createElement(App));
+function Counter() {
+    const db = useContext(StorageContext);
+    const [work, setWork] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => setWork(db.work.size));
+        return () => clearInterval(interval);
+    });
+    return (
+        <Box>
+            <Paper>
+                <div>Pending database operations: {work}</div>
+                <details>
+                    <summary>Database values</summary>
+                    <pre>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {db
+                                    .keys()
+                                    .map((e) => [e, db.getValue(e)] as const)
+                                    .map(([k, v], idx) => (
+                                        <tr key={idx}>
+                                            <td>{k}</td>
+                                            <td>{JSON.stringify(v)}</td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </pre>
+                </details>
+            </Paper>
+        </Box>
+    );
+}
+
+ReactDOM.createRoot(document.querySelector("#root")!).render(
+    React.createElement(function () {
+        const LS = useStorageAdapter({ type: "LocalStorage" });
+        return (
+            <StorageContext value={LS}>
+                <App />
+            </StorageContext>
+        );
+    })
+);
