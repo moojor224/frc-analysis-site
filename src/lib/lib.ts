@@ -4,6 +4,7 @@ export const Tabs = {
     Home: "Home",
     Season: "Season Analysis",
     Event: "Event Analysis",
+    EventMatches: "Event Match Status",
     Debug: "Debug"
 } as const;
 export type TabKeys = (typeof Tabs)[keyof typeof Tabs];
