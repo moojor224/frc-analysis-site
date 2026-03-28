@@ -8,7 +8,7 @@ import type { Event, Match } from "@moojor224/tba-api";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { Box, Button, Grid, Paper, Stack } from "@mui/material";
 import { BarChartPremium, LineChartPro } from "@mui/x-charts-premium";
-import { DataGridPremium } from "@mui/x-data-grid-premium";
+import { DataGridPremium, type GridSortModel } from "@mui/x-data-grid-premium";
 import { useState } from "react";
 
 function getTeamRP(teamKey: string, match: Match, year: number) {
@@ -251,6 +251,7 @@ export default createAnalyticsPagePipeline(
     }) {
         const [showGraph, setShowGraph] = useState<ShowGraph>(ShowGraph.All);
         const rollRows = Object.entries(roll).map((e) => ({ team: parseInt(e[0]), rp: e[1], id: e[0] }));
+        const [rankSortModel, setRankSortModel] = useState<GridSortModel>([{ field: "rank", sort: "asc" }]);
         return (
             <Box>
                 <Stack spacing={2}>
@@ -404,7 +405,8 @@ export default createAnalyticsPagePipeline(
                                             : "";
                                     }}
                                     getRowId={(row) => row.team_key}
-                                    sortModel={[{ field: "rank", sort: "desc" }]}
+                                    sortModel={rankSortModel}
+                                    onSortModelChange={(e) => setRankSortModel(e)}
                                 />
                             </Paper>
                         </Grid>
