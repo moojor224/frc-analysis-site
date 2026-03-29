@@ -60,7 +60,7 @@ export default createAnalyticsPagePipeline(
                         data: events
                     }
                 ] as const,
-            "Analyze Event",
+            "Get Event Status",
             true
         )
         .api((api, data) => [data[0], data[1], api.getEventTeams(data[0])] as const)
