@@ -227,7 +227,8 @@ export default createAnalyticsPagePipeline(
                     };
                     return matchData;
                 })
-                .filter((e) => e !== null);
+                .filter((e) => e !== null)
+                .filter((e) => e.score >= 0);
             const losingMatches = teamMatches.filter((e) => !e.win).map((e) => e.score);
             const avgLosingScore = losingMatches.reduce((a, b) => a + b, 0) / losingMatches.length;
             const avgScore = teamMatches.reduce((a, b) => a + b.score, 0) / teamMatches.length;
